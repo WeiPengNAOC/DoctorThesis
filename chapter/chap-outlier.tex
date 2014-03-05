@@ -1,0 +1,801 @@
+\chapter{利用离群数据挖掘方法挖掘特殊及稀少天体光谱}
+大规模光谱巡天将产生海量的光谱数据，这为搜寻一些奇异甚至于未知类型的光谱的提供了机会。
+为克服当前一些方法的局限性，
+本文提出了一种新的离群数据挖掘方法：蒙托卡罗局部孤立性因子（MCLOF）。
+该方法可用于海量的光谱巡天数据集中搜寻异常及稀少的光谱。
+MCLOF方法通过给每一条光谱标记一个数值（离群因子）来作为异常及稀少光谱的比较，进而快速、自动并有效的挖掘其中的离群数据。
+局部孤立性因子（LOF）表明了一条光谱相对于其它光谱异常和稀少的程度。
+蒙托卡罗方法通过每次迭代中随机选取一个子样本，然后综合每次迭代的结果计算全局的局部孤立性因子。
+将本文提出的方法应用于SDSS DR8中接近50万条恒星光谱中，
+按照信噪比大于3、离群因子大于0.85的标准共筛选出37033条离群数据。
+离群数据中包括发射线恒星、双星、碳星及连续谱异常的恒星等。
+结果表明本文方法可以有效的从海量巡天光谱数据中发现这些异常的恒星光谱。
+此外，一些相对稀少而且有趣的光谱也被挖掘出来，这表明该方法同样可以适用于发现一些稀少甚至于未知类型的光谱。
+该方法不仅只适用于光谱巡天数据集，同样也适用于其他巡天的数据中。
+
+
+\section{引言}
+多目标光谱技术可以同时观测成百上千个目标，观测的效率得到极大的提高。
+因此，大规模的巡天项目将获得海量光谱数据。
+如此大的数据不仅为银河系及河外科学研究，还为发现一些异常、稀少甚至于未知类型的观测目标提供了可能性。
+斯隆数字巡天项目\cite{york2000sloan}（SDSS）是天文学历史上最雄心勃勃而且最有影响力的巡天项目之一，该巡天项目对非常大面积的天区进行成像及光谱巡天观测。
+Szkody等\cite{szkody2002cataclysmic,szkody2003cataclysmic,szkody2004cataclysmic,szkody2005cataclysmic,szkody2006cataclysmic,szkody2007cataclysmic,szkody2011cataclysmic}从SDSS EDR、DR1-DR8的数据中共发现了297个激变变星(CVs)。
+Rebassa-Mansergas等\cite{rebassa2012post}通过约束$\chi^2$拟合的结果和信噪比的关系从SDSS DR7中筛选白矮主序双星（WDMS）候选体。
+李荫碧等\cite{li2012metal}从SDSS DR7的370000恒星中发现了13了年老贫金属的F型超高速星候选体。
+LAMOST巡天\cite{cui2012large,zhao2012lamost,luo2012data}包含两个部分：LAMOST银河系外巡天（LEGAS）及LAMOST银河系巡天\cite{deng2012lamost}（LEGUE）。
+LAMOST望远镜的独特设计使得它在以此曝光中可以同时观测4000条光谱。
+r波段极限星等在分辨率R=1800可以达到19，在分辨率R=500的时候可以达到20。
+因此，LAMOST在对恒星及星系巡天方面有着巨大的潜力和空间。
+李海宁等\cite{li2010test}在LAMOST的低分辨率光谱中搜寻到了极贫金属星候选体。
+吴学兵等\cite{wu2010very}在LAMOST测试观测数据中发现一颗极亮(i=16.44)的类星体，其红移值位于‘红移沙漠’中。
+任娟娟等\cite{ren2013white}在LAMOST的先导巡天数据中发现了28颗WDMS候选体。
+黄样等\cite{huang2014hst}在先导巡天数据中发现了一颗双活动星系核。
+
+%Data mining are the inter-cross and fusion of artificial intelligence,  machine learning,  statistics and database systems.
+和传统简单的样本约减和模板匹配方法不同，
+数据挖掘为从海量巡天数据中搜寻特殊及异常光谱提供了一条新方案。
+屠良平等\cite{tu2009new,tu2010method}运用基于局部孤立性因子的离群数据挖掘算法从SDSS的星系光谱中系统的搜寻超新星候选体。
+Meusinger等\cite{meusinger2012unusual}利用自组织映射的方法从SDSS中红移范围在[0.6,4.3]接近100000条类星体光谱筛选异常的类星体光谱。
+姜斌等\cite{jiang2013data,jiangbin2011gpxa,jiangbin2012gpx}利用数据挖掘算法（如支持向量机、随机森林）等方法在SDSS及LAMOST的数据中发现激变变星候选体。
+彭南博等\cite{peng2012selecting}构建了一套基于支持向量机的分类体系，利用其他大型测光巡天项目数据为LAMOST等光谱巡天项目输入星表筛选类星体候选体。
+
+本文提出了一种新的离群数据挖掘方法：蒙托卡罗局部孤立性因子（MCLOF）。
+该方法可用于海量的光谱巡天数据集中搜寻异常及稀少的光谱。
+MCLOF方法通过给每一条光谱标记一个数值（离群因子）来作为异常及稀少光谱的比较，进而快速、自动并有效的挖掘其中的离群数据。
+下面将详细讲述该方法及利用该方法应用到SDSS DR8中的实验结果。
+\section{方法}
+\label{method}
+
+			     	  \subsection{PCA}
+               			     	  	主成分分析（Principal component analysis，PCA）\cite{jolliffe2002principal}是一种利用正交转变来将一组可能相关的变量转变为一组线性无关的变量（称之为主成分）的数学过程
+                        主成分的数目要小于或等于原始变量的数目。
+                        这种转变过程中，第一个主成分有着最大的方差，也就是说贡献了尽量多的数据变化。
+                        每个后面的成分也有着最大的方差贡献率，约束条件为该成分和前面成分之间是正交的（不相关的）。
+
+                        假设有一个向量组$\textbf{x}$，其中$$
+					\textbf{x}= (x_1, ..., x_n)^T
+			     	  	$$
+                        ，其平均值定义为
+                        	$$
+			     	  	\mu_\textbf{x}=E\{\textbf{x}\}
+			     	  	$$
+			     	  	，协方差矩阵为
+			     	  	$$
+			     	  	C_\textbf{x}=E\{ (\textbf{x}-\mu_\textbf{x}) (\textbf{x}-\mu_\textbf{x})^T\}.
+			     	  	$$
+			     	  	$C_\textbf{x}$的成分定义为$C_{ij}$,表征了随机变量成分$x_i$和$x_j$之间的协方差。
+                        $C_{ii}$为$x_i$变量的方差。
+                        每个变量的方差表征了变量数值在均值附近的分布。
+                        如果两个变量$x_i$和$x_j$是不相关的，他们的协方差为0即C$_{ij}$=C$_{ji}$=0。
+                        按照其定义，协方差矩阵是对称的。
+			     	  	
+			     	从一组向量样本$\textbf{x}_1, ..., \textbf{x}_M$，可以计算样本的均值和样本的协方差矩阵作为均值和协方差矩阵的估计。
+                从一个对称矩阵例如协方差军阵，可以通过发现它的特征值和特征向量计算一个正交的基。
+                特征向量$e_i$和对应的特征值$\lambda_i$是下面方程的解：
+                $$
+					C_xe_i=\lambda_ie_i, i=1, ..., n.
+					$$					
+					通过按照特征值倒序排列（大值在前）特征向量，
+                    可以创建一个排序的正交基（前面的特征向量指向数据最大方差的方向）。
+                    如此的话，可以发现数据集中有着能量最明显数量的方向。
+				
+                    假设有$A$ 一个数据集，其样本均值和协方差矩阵都已经计算。
+                    令$A$为包括协方差矩阵的特征向量作为其行向量的矩阵。
+                    通过转变一个特征向量 $\textbf{x}$，可得到
+                    $$
+				      \textbf{y}=A (\textbf{x}-\mu_\textbf{x})
+				      $$
+                        ， $\textbf{y}$是在特征向量定义的正交坐标系下的一个点。
+                      $\textbf{y}$的变量可以视为在正交基下的坐标。
+                      通过正交矩阵$A^{-1}$$=$$A^T$利用公式$$
+				      \textbf{x}=A^T \textbf{y}+\mu_\textbf{x}
+				      $$可以从$\textbf{y}$ 重构出数据向量$\textbf{x}$。
+原始向量$\textbf{x}$被投影到正交基定义的坐标系中。
+原始向量接下来可以利用正交基向量的线性组合重构。
+
+一般只采用非常少的正交基的基向量来表示数据，而不是用协方差矩阵中全部的特征向量。
+定义$A_d$为一个只有前几个特征向量作为行向量的矩阵，可以创建一个类似的变换关系：
+$$
+				       \textbf{y}=A_d (\textbf{x}-\mu_\textbf{x})
+				      $$
+				      和
+				      $$
+				      \textbf{x}=A_d^T \textbf{y}+\mu_\textbf{x}
+				      $$。
+		这意思是说可以将原始数据向量投影到有d个维度的坐标系，可通过基向量的线性组合重构原始数据。
+    这就最小化了数据和通过给定数量的特征向量重构的数据之间的最小二乘误差。
+			     	  	
+				    \subsection{LOF\label{lof}}
+					  文献\cite{breunig2000lof}提出了一种用于离群数据监测的局部孤立性因子（LOF）算法的构想，该算法可以用来描述一条光谱在所有光谱数据中的奇异程度。
+                    该算法的定义及计算过程如下\cite{breunig2000lof, tu2009new, tu2010method}：
+					
+					\textbf{定义1:}  对象$p$的$k$-距离。对任意的自然数$k$，
+                                定义$p$的$k$-距离（$k$-$distance (p)$为p和某个对象$o\in D$之间的距离，
+                                这里的$o$满足：
+
+                                    1、至少存在$k$个对象$o'\in{D}\setminus{p}$，使得$d (p, o')\le d (p, o)$；
+
+                                    2、至多存在$k$-1个对象$o'\in D\setminus p$，使得$d (p, o')$$<$$d (p, o)$。
+					
+					\textbf{定义2:} 对象$p$的$k$-距离邻域。
+                                    给定$p$的$k$-距离$k$-$distance(p)$，
+                                    $p$的$k$-距离邻域为$N_{k}$$_-$$_{distance (p)} (p)=\{q\in D\setminus p\mid(p, q)\leq k$-$distance (p)\}$，
+                                    它包含所有与$p$的距离不超过$k$-$distance(p)$的对象。
+                                    可简写为$N_k$$_{-}$$_{distance} (p)$。
+
+					\textbf{定义3:} 					
+                    定义对象$p$关于对象$o$的$k$局部可达距离$reachdist_{k} (p, o)$为：
+                        $reachdist_{k} (p, o)=max\{k$-$distance (o), d (p, o)\}$.
+					
+					\textbf{定义4 \& 5:}
+                对于一个对象$p$，其局部可达密度和局部孤立性因子分别定义为：
+					$$
+					lrd_{k} (p)=\frac{|N_{k} (p)|}{\sum\limits_{o\in
+					N_{k} (p)}reachdist_{k} (p, o)}
+					$$
+					$$
+					LOF_{k} (p)=\frac{\sum\limits_{o\in
+					N_{k} (p)}\frac{lrd_{k} (o)}{lrd_{k} (p)}}{|N_{k} (p)|}
+					$$
+				
+				    \subsection{蒙托卡罗方法}
+                蒙托卡罗方法是一系列通过随机采样来计算计算结果的算法集合。
+                通常蒙托卡罗方法方法的应用大致可分为两类：
+                一是具有内在的随机性问题的解决，通过计算可以模拟该随机过程。
+                另一个是用随机抽样和估计随机变量的特征为整个样本特征。
+
+                通过\ref{lof}节的讨论，我们知道如果我们想要计算一个大小为N的样本集的LOF，就需要一个$N^2$的矩阵来存储样本间的距离。
+                显然，当N大到一定程度之后，内存将成为计算的主要瓶颈。
+                此外，计算和存储如此大规模的矩阵也是没有必要并且没有效率的。
+                因此，我们采用随机采样来从所有样本中得到一个大小为$n$（$n\ll N$）的小样本，然后计算该子样本的局部孤立性因子。
+                经过一定次数的迭代或者迭代迭代收敛时，
+                通过每次迭代的结果可以计算出一个离群因子并依此来筛选所有样本中的离群数据。
+					
+	\subsection{本文提出的MCLOF方法\label{pmethod}}
+基于上面的三个算法，本文提出的方法描述如下：	
+	\begin{enumerate}
+		     	\item {随机选择一定数量的高信噪比光谱进行主成分分析，得到特征矩阵T。}
+			\item {将所有的光谱投影到前面得到的PCA特征空间T，得到矩阵$D$。}
+			\item {假设$ C_s $,  $ C_ {LOF} $是两个长度为$N$ 的矩阵，其中$N$是矩阵D的行数}
+			\item {迭代一下过程至一定次数:}
+				\begin {itemize}
+					\item {随机选择$D$的子样本$D '$，行数固定为$n$ ($n \ll N$)。}					
+					\item {计算$D'$样本集的LOF，假设得到的向量为$L_{sub}$，然后按照$L_{sub}$的大小升序排列$D'$。}
+					\item { $C_{LOF}$加上对应的排序后的下标，$ C_s =C_s+n$}
+				\end {itemize}
+			\item {定义孤立性指数为：$outlier$-$index = C_ {LOF}/C_s $.}
+			\item {选择$S/N$$\ge$$3$ 并且 $outlier$-$index$$\ge$$0.85$ 的光谱作为离群数据。}
+			\item{为更好的分类和分析挖掘出来的离群数据，运用聚类算法将所有的离群光谱划分到不同的分组中。}
+			\item{计算每一个分组的平均光谱。}
+			 \end{enumerate}
+			
+			 %All spectra are  visually inspected after clustering.
+
+\section{从SDSS DR8中挖掘出来的特殊光谱}
+\label{result}
+	\subsection{数据样本}		
+%The original Sloan Extension for Galactic Understanding and Exploration (SEGUE-1) \citep{yanny09} obtained nearly 240, 000 star spectra.
+%Based on Sloan Extension for Galactic Understanding and Exploration (SEGUE-1) \citep{yanny09}, SEGUE-2 spectroscopically observed about 120, 000 stars, which focus on the stellar halo of the Galaxy from 10 kpc to 60 kpc.
+%Following the previous successful practice established by SDSS-I and SDSS-II,  SDSS-III will release its raw and reduced spetra data.
+继SDSS EDR以及DR1-DR7之后，SDSS DR8\cite{aihara2011eighth}数据于2011年1月正式发布。
+DR8数据中包含了所有通过升级后数据处理程序处理的SDSS成像数据。
+同时还发布了SEGUE-2项目最后一年拍摄到的光谱数据。
+我们从DR8中选择了656，801条恒星光谱（星表中分类为'STAR'）,其中有341，822条光谱来自SEGUE巡天。
+其空间分布及光谱信噪比分布分别图\ref{fig:f101}和如图\ref{fig:f101}所示。
+通过在像素空间里与模板光谱进行 $\chi ^2$匹配\cite{glazebrook1998automatic}，
+每一条恒星光谱都分类为一个恒星亚类型。
+	\begin{figure}		
+    \centering
+				\label{fig:f101}
+		\includegraphics[width=0.8\textwidth]{figures/f101.eps}
+		\caption{SDSS DR8中所有光谱的空间分布。其中绿色为SEGUE巡天中的目标源。}
+		\end{figure}
+		
+				\begin{figure}
+		
+			\centering	
+		\includegraphics[width=0.8\textwidth]{figures/f102.eps}
+		\caption{SDSS DR8中所有恒星光谱的信噪比分布。\label{fig:f102}}		
+		\end{figure}
+		
+	\subsection{结果与讨论}
+我们将本文提出的方法应用于前面所述的SDSS DR8恒星光谱。
+按照前面章节\ref{pmethod}描述的方法对这些光谱进行处理。
+下面我们将描述和讨论实验结果。
+
+为了得到更好的特征光谱，需要选择尽量多的高质量光谱。
+在本文工作中，我们随机选择总计20,000条$SNR$$>$$ 20$的来通过主成分分析得到特征向量。
+前15个特征光谱 (如图\ref{fig:f103}所示)的方差贡献率之和已经超过$99.99\%$。
+因此，我们可以利用这15个特征向量来进行光谱的降维处理。
+为得到每条光谱的离群指数，我们在每次迭代的时候随机选择1\%的光谱，共计进行了50,000次迭代。
+也就是说，每条光谱会被平均选择出来500次。
+如图\ref{fig:f104}所示，和预期一致，所有光谱总的筛选次数都在$[420,600]$范围内。		
+		%The distribution coincides with the normal distribution.
+				\begin{figure}
+\centering
+		\includegraphics[width=0.8\textwidth]{figures/f103.eps}
+		\caption{\label{fig:f103}从2万条随机挑选的光谱中得到的前15个特征光谱。}
+		\end{figure}
+%%replot
+		
+		\begin{figure}	
+			\centering
+		\includegraphics[width=0.8\textwidth]{figures/f104.eps}
+		\caption{\label{fig:f104}每条光谱选择次数的分布图。}
+		\end{figure}
+		
+在经过共计50000次迭代后，每条光谱都会计算出一个离群指数值。
+所有光谱的离群指数的平均值为0.457,标准差为0.270;
+信噪比大于3的光谱，平均值和标准差分别为0.457和0.241。
+图\ref{fig:f105}展示了在信噪比和离群指数网格空间内的数量密度分布。	
+			\begin{figure}
+\centering
+		\includegraphics[width=0.8\textwidth]{figures/f105.eps}
+		\includegraphics[width=0.8\textwidth]{figures/f105-2.eps}
+		\caption{\label{fig:f105}上图：信噪比和离群指数网格空间内的数量密度分布。
+    信噪比从0到140，步长为2。
+    离群指数从0到1，步长为0.02。
+    图中的两条白线分别是筛选离群数据的下界。
+    下图：上图局部放大（信噪比[0,20]，离群指数[0.6,1.0]）。}
+		\end{figure}	
+我们从所有光谱数据中选择其中的37033条信噪比大于3而且离群指数大于0.85作为离群。
+图\ref{fig:f106}给出了这些离群光谱对应的目标的空间分布。
+		 \begin{figure}
+\centering
+			\includegraphics[width=0.8\textwidth]{figures/f106.eps}
+		\caption{\label{fig:f106} SDSS DR8中恒星的空间分布。
+其中红色的数据点为所有观测目标，绿色点是本文筛选出来的离群光谱对应的观测目标。}
+            \end{figure}
+
+		%And those objects with subclass F, G, K have a lower $P3$ value, which is caused by the target selection effect.
+		%%%%閲嶅啓%%%%%%%%%%
+		
+	\begin{table*}
+\rotate
+\begin{center}
+ \begin{minipage}{140mm}
+  \caption{SDSS DR8中所有恒星的子类分布\label{t31}}
+  \begin{tabular}{lrrrrrrrr}
+  \hline
+ The subclass in the SDSS DR8 &
+ A1\footnote{所有光谱中该类型光谱的数量}&
+ A2\footnote{所有$S/N$$>$$ 3$光谱中该类型光谱的数量}&
+ A3\footnote{所有离群光谱中该类型光谱的数量}&
+  A4\footnote{所有$S/N$$>$$ 3$且$outlier$-$index$$>$$ 0.7$ 光谱中该类型光谱的数量}&
+ P1\footnote{$P1=A1/656801$}&
+ P2\footnote{$P2=A2/37033$}&
+ P3\footnote{$P3=A3/A2$} &
+  P4\footnote{$P4=A4/A2$} \\
+ \hline
+Carbon CarbonWD Carbon\_lines	&4731	&1170	&882	&1151	&0.72\%	&2.38\%	&75.38\%	&98.37\%\\
+ WDMagnetic	&523	&148	&89	&123	&0.07\%	&0.24\%	&60.14\%	&83.11\%\\
+L1 L2 L3 L4 L5 L5.5 L9	&15359	&1063	&638	&977	&2.34\%	&1.72\%	&60.02\%	&91.91\%\\
+T2	&10061	&887	&504	&820	&1.53\%	&1.36\%	&56.82\%	&92.44\%\\
+CV	&4909	&2428	&819	&2190	&0.75\%	&2.21\%	&33.73\%	&90.20\%\\
+WD	&15799	&13921	&3137	&6512	&2.41\%	&8.47\%	&22.53\%	&46.78\%\\
+O OB B	&8247	&4143	&838	&1539	&1.26\%	&2.26\%	&20.23\%	&37.15\%\\
+M0-M9 M0V  M2V	&103131	&67102	&6976	&16749	&15.70\%	&18.84\%	&10.40\%	&24.96\%\\
+A0 A0p	&72108	&71283	&6539	&24111	&10.98\%	&17.66\%	&9.17\%	&33.82\%\\
+K1 K3 K5 K7	&120285	&114574	&6278	&24307	&18.31\%	&16.95\%	&5.48\%	&21.22\%\\
+G0 G2 G5	&48211	&46956	&1889	&8065	&7.34\%	&5.10\%	&4.02\%	&17.18\%\\
+F2 F5 F9	&253437	&252070	&8444	&36793	&38.59\%	&22.80\%	&3.35\%	&14.60\%\\
+\hline
+\end{tabular}
+\end{minipage}
+\end{center}
+\end{table*}
+%%%%%%%%%%%%%%%%%%%%
+所有筛选出来的离群光谱的数据的子类分布如表\ref{t31}所示。
+表中的数值$P1=A1/656,801$ 和$P2=A3/37,033$分别表示了对应子型光谱在SDSS DR8中所有恒星光谱数据及筛选出来的离群光谱数据中的比例。
+对每一个子型，数值$P3=A3/A2$表明该子型在$outlier$-$index$$>$$ 0.85$条件下离群的比例。
+类似于该数值，数值$P4=A4/A2$表明该子型在$outlier$-$index$$>$$ 0.7$条件下离群的比例。
+由于一些光谱被误分导致每个分类的光谱总数并不是非常准确，
+但这并不会影响统计上的结果尤其是对于$S/N$$>$$3$的光谱。
+和预期一致，一些相对数量比较稀少类型的光谱如碳星、磁白矮星、L和T型恒星、激变变星、白矮星、O和B类型恒星的 $P3$及 $P4$值要比其他类型的数值要大。
+如果把筛选离群的标准扩展到$outlier$-$index$$>$$ 0.7$，会有超过90\%的碳星、白矮星、L和T型恒星、激变变星会被筛选成离群数据。
+除了这些类型的光谱，其他类型光谱主要是双星、发射线恒星以及连续谱异常的恒星等。
+这些结果表明本文提出的方法可以非常有效的筛选出这些异常而且稀少类型的光谱。
+此外，一些相对非常稀少而且有趣光谱也被筛选出来，这表明本文方法也可以筛选非常稀少甚至于未知类型的光谱。
+
+K均值聚类是一种聚类分析的方法，它旨在将会将所有的样本分为k个不同簇中，每个样本会都归到最近均值的那个簇。
+我们利用K均值算法将所有的筛选的离群光谱光谱分到600组中。
+每个簇中，可以从簇心得到一条光谱，同时也可以对所有光谱平均得到另外一条光谱。
+这两条光谱中都能明显的看出组内光谱的突出特征。
+我们通过所有分组进行逐组检查的方式分析了所有的离群光谱。
+由于筛选出来的离群光谱数据尤其是一些非常稀少光谱类型比较多，我们在这里只讨论一个典型的类型和几个非常罕见的源。
+
+	\subsubsection{发射线恒星}
+众所周知，大部分恒星光谱中的主要特征是明显的吸收线或者分子吸收带。
+只有一小部分恒星光谱中会出现发射线特征。
+出现发射线的恒星光谱一般对应一些非常特殊的目标，如激变变星、Herbig Ae/Be和行星状星云等。
+如图\ref{fig:f107}所示，在聚类之后，有8个分组（1, 152, 285, 297, 355, 441, 461 and 569 ）的平均光谱中表现出非常明显的发射线特征。
+其他一些发射线恒星光谱也出现其他一些平均光谱没有明显发射线的分组中。
+我们在本节中选择两个不同类型的发射线恒星光谱来讨论。
+	\begin{figure}		
+\centering		
+		\includegraphics[width=0.8\textwidth]{figures/f107.eps}
+		\caption{\label{fig:f107}
+        分组1, 152, 285, 297, 355, 441, 461 和 569的平均光谱。
+        在计算平均光谱时，每条光谱均被归一化到$[0,1]$ 区间内。
+		%Each line stands for a group's average spectrum.
+		%To plot each spectrum separately, the spectra are all added a different number.	
+		}
+		\end{figure}	
+		
+
+	\emph{I: 激变变星}. 如图\ref{fig:f108}所示，和正常恒星相比，激变变星的光谱中有些非常强的表征吸积过程的氢以及氦发射线。
+    Szkody等\cite{szkody2002cataclysmic,szkody2003cataclysmic,szkody2004cataclysmic,szkody2005cataclysmic,szkody2006cataclysmic,szkody2007cataclysmic,szkody2011cataclysmic}从SDSS EDR及DR1-DR8中总计发现了297个激变变星，
+    其中271个激变变星有拍摄到光谱。
+    在这271条光谱中，有248条光谱在星表中分类Star而且信噪比大于3。
+    在和该星表交叉之后，我们发现在有226条恒星光谱出现在本工作筛选出的离群数据中。
+    只有22条光谱（$\sim$$8\%$）没有出现筛选出来的离群数据中。
+    在检查这些光谱之后，我们发现其中有10条光谱的离群因子大于0.7，剩余的12条光谱中表现出非常强的噪声而且发射线特征非常弱。
+    在检查包含这些激变变星的分组，我们从中发现了33条不包含在Szkody星表的光谱。
+    其中有26条光谱是Szkody星表中重复观测的源（如表 \ref{tbl2}所示）。
+    SDSS J143947.62-010606.8（观测两次）被证认为激变变星\cite{shimansky2011wd}。
+    其余五个源（基本信息如表\ref{tbl-1}所示）SDSS J035747.16-063850.7, SDSS J140429.37+172359.4, SDSS J143209.78+191403.5, SDSS J111715.90+175741.7, SDSS J161935.76+524631.8是本工作中新发现的。
+		\begin{figure}
+				\centering
+		\includegraphics[width=0.8\textwidth]{figures/f108.eps}
+		\caption{\label{fig:f108}
+激变变星和正常恒星的光谱比较。
+绿线为激变变星的光谱，蓝线为正常恒星的光谱。
+		}
+		\end{figure}
+	
+	\begin{table}
+	
+
+ \centering
+ \begin{minipage}{140mm}
+  \caption{观测超过两次的激变变星列表\label{tbl2}}
+  \begin{tabular}{cccc}
+  \hline
+Designation & MJD& Plate& Fiberid\\
+
+\hline
+
+SDSS J143500.22-004606.3	&51637	&306	&4	\\
+	&51690	&306	&20	\\
+SDSS J143947.62-010606.9	&51663	&307	&90	\\
+	&52409	&919	&620	\\
+SDSS J163722.21-001957.1	&51671	&348	&103	\\
+	&51696	&348	&103	\\
+SDSS J173008.39+624754.6	&51694	&352	&26	\\
+	&51789	&352	&33	\\
+SDSS J172601.95+543230.7	&51813	&357	&51	\\
+	&51997	&367	&53	\\
+SDSS J223439.92+004127.2	&52143	&376	&631	\\
+	&52201	&674	&427	\\
+SDSS J223843.83+010820.6	&52145	&377	&540	\\
+	&52201	&674	&524	\\
+SDSS J085344.17+574840.6	&51902	&483	&332	\\
+	&51924	&483	&348	\\	
+	&51942	&483	&352	\\
+SDSS J132723.38+652854.2	&51973	&496	&83	\\
+&51988	&496	&83	\\
+SDSS J204448.91-045928.8	&52145	&635	&387	\\
+	&53269	&1916	&424	\\
+SDSS J013132.38-090122.2	&52178	&662	&384	\\
+&54465	&2878	&585	\\
+&52147	&662	&384	\\
+SDSS J073817.74+285519.6	&52232	&754	&34	\\
+	&52339	&888	&378	\\
+SDSS J094325.89+520128.7	&52281	&768	&13	\\
+	&53763	&2384	&7	\\
+SDSS J161030.34+445901.7	&52355	&814	&274	\\
+	&52370	&814	&274	\\
+	&52443	&814	&280	\\
+SDSS J074813.54+290509.1	&52592	&1059	&405	\\
+	&52618	&1059	&407	\\
+SDSS J092444.48+080150.9	&52724	&1195	&403	\\
+	&54176	&2402	&409	\\
+SDSS J155412.33+272152.4	&53498	&1654	&542	\\
+	&54544	&2459	&521	\\
+	&54339	&2459	&533	\\
+SDSS J155904.62+035623.4	&53494	&1837	&283	\\
+	&54592	&2951	&65	\\
+SDSS J090950.53+184947.4	&53687	&2285	&30	\\
+	&53700	&2285	&30	\\
+SDSS J032855.00+052254.1	&53713	&2334	&581	\\
+	&53730	&2334	&600	\\
+SDSS J105754.25+275947.5	&53800	&2359	&102	\\
+	&53826	&2359	&105	\\
+SDSS J112003.40+663632.4	&54464	&2858	&228	\\
+	&54498	&2858	&239	\\
+\hline
+\end{tabular}
+\end{minipage}
+
+\end{table}
+	
+	\begin{table*}
+	
+	
+
+ \begin{minipage}{150mm}
+  \caption{\label{tbl-1}本文第一次发现的激变变星基本信息}
+  \begin{tabular}{cccccccccc}
+  \hline
+Designation & MJD & Plate & Fiberid  &g\footnote{g代表SDSS DR8中给出的g波段星等} (mag)& $u-g$\footnote{u-g, g-r, r-i 和 i-z 分别代表了四种不同的颜色} & $g-r$&$r-i$ &$ i-z$ \\
+
+\hline
+SDSS J035747.16-063850.7	&53741	&2071	&137		&19.99664	&-0.12799	&0.2604	&-0.13382	&0.14473		 \\
+SDSS J140429.37+172359.4	&54509	&2757	&112		&17.54387	&-0.42746	&0.18133	&-0.01964	&0.1285		 \\
+SDSS J143209.78+191403.5	&54534	&2774	&107		&18.39235	&0.14915	&0.04772	&-0.01246	&-0.04828		 \\
+SDSS J111715.90+175741.7	&54951	&3327	&337		&-\footnote{- 代表SDSS DR8没有给出测光数据}	&-	 &-	&-	&-		 \\
+SDSS J161935.76+524631.8	&54983	&3442	&276		&19.01755	&-0.15327	&0.16525	&0.35507	&0.21506		 \\
+\hline
+\end{tabular}
+\end{minipage}
+
+\end{table*}
+
+	
+	\emph{II: 星云。}
+    因为星云是星际尘埃中，氢，氦和其他电离气体等云，其光谱中显示出很强的氢和氦发射线。
+    视线方向上位于星云背后的恒星同样在光谱表现出发射线。
+    我们注意到SDSS中plate1246，1247，1248的筛选出来光谱均表现出来非常强的巴尔默发射线（如图\ref{fig:f109}所示）。
+    从该区域的成像数据（如图\ref{fig:f110}所示）中可以看出，星云是导致光谱中出现发射线的主要原因。
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/f109.eps}
+		\caption{\label{fig:f109}Plate1246, 1247和1248的平均光谱。
+        在计算平均光谱时，每条光谱均被归一化到$[0,1]$ 区间内。
+		%Each line stands for a plate's average spectrum.
+		}
+		\end{figure}
+		
+		\begin{figure}		
+		\begin{center}
+\centering
+		\includegraphics[width=0.8\textwidth]{figures/f110.eps}
+		\caption{\label{fig:f110}
+        Plate 1246, 1247 and 1248区域的SDSS多色图像数据。
+        其中心为ra=87.805$^{\circ}$, dec=0.686$^{\circ}$.
+		%Each pixel is 6.3380 arcsec.
+        红色方框为发射线恒星。}
+		
+		\end{center}
+		\end{figure}
+		
+由于光谱中有很强的发射线，这两类恒星从正常恒星中筛选出来作为离群数据。
+在人眼检查完所有的分组之后，我们发现其它分组中同样存在一些其它类型的发射线恒星。
+这些结果都表明本文提出的方法非常适合于识别这些发射线恒星。
+	
+	\subsubsection{双星}
+双星系统系统包含两颗围绕共同质心旋转的两颗恒星组成\cite{batten1973binary}。
+这里，我们以白矮主序双星（WDMS）为例来展示本文方法双星实验的结果。
+包含一颗白矮星主星和一个主序伴星的双星系统是一种初始的主序双星，其中较大质量的恒星已经经历过巨星演化阶段变成一颗白矮星\cite{rebassa2012post}。
+Rebassa等\cite{rebassa2012post}通过约束$\chi^2$和$S/N$的关系，拟合了SDSS DR7中近127万条光谱从中筛选WDMS候选体。
+他们在所有70000条光谱中，通过人眼检查总计发现了2248个候选体。
+在这些光谱中，我们发现其中有2091条光谱信噪比大于3而且在SDSS DR8星表中分类为恒星。
+在这2091条光谱中，共2074条光谱被本文方法筛选出来作为离群数据。
+也就是说，这其中约$99.18\%$的光谱被成功的筛选出来。
+我们没有被筛选出来的光谱主要因为光谱中其中一个成分远远弱于另外一个强成分。
+由于这些光谱之间非常强的相似性，在聚类之后这些光谱聚集在一起。
+其中的1914条光谱就已经分布在50个分组中。
+我通过对这些分组进行人眼检查，很容易的从中发现了接近500条疑似WDMS光谱，后经检验共有约60条新WDMS光谱\cite{rebassa2013white}。
+这表明，本文提出的方法能够非常有效的识别出WDMS双星。
+
+还有一些光谱中包含了两个物理上没有联系的两个成分（一般被称为光谱双星），成分之间并没有束缚只是分布同一个视线方向。
+另外，由于光纤半径及观测条件的限制，两个及以上目标源的光谱也会进入到同一个光纤中。
+在我们筛选出的离群数据中，也有许多这种类型的光谱。
+图\ref{fig:f111}给出了一个例子，光谱中包含了一个类星体及一个M类型恒星，这两个成分之间显然不是物理双星。
+		\begin{figure}	
+\centering	
+		\includegraphics[width=0.8\textwidth]{figures/f111.eps}
+		\caption{\label{fig:f111}源SDSS J031315.40+001036.4的光谱。
+        黑线为该源的光谱，光谱中来自类星体的CI V线被标红。}
+		\end{figure}
+		
+
+	
+	\subsubsection{连续谱异常的恒星}	
+	在我们筛选的离群数据中，共计有14个分组中的平均光谱表现出严重的连续谱异常（如图\ref{fig:f113}所示）。
+我们发现这些光谱同谱线特征类似的正常光谱表现出非常不同的连续谱。
+此外，我们还发现连续谱异常的光谱通常出现同一个plate中，在聚类之后这些光谱也分布在同样的分组中。
+和正常恒星光谱相比，这些光谱同样是由于星际消光或者流量定标异常造成的连续谱异常。
+	\begin{figure}
+	\centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/f113.eps}
+		\caption{\label{fig:f113}分组17, 27, 76,  93, 126, 161, 190, 323, 353, 385, 402, 410, 436 和  502的平均光谱。
+        在计算平均光谱时，每条光谱均被归一化到$[0,1]$ 区间内。
+		}
+		
+		\end{figure}
+	
+	
+	我们随机选择了plate 1246, 1247, 1638, 1640, 2555 和2887的6条光谱（如图\ref{fig:f135}所示）。
+	我们发现通过星等得到的物理流量和光谱流量基本一致，因此我们推测这些异常连续是由于比较高的星际消光造成的。
+	\begin{figure}
+			\centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/f135.eps}
+		\caption{\label{fig:f135}plate 1246, 1247, 1638, 1640, 2555 和 2887.随机筛选的6条光谱。
+		黑色实线为光谱曲线，红色填充圆是从SDSS $ugriz$得到的物理流量。
+		}
+		
+		\end{figure}		
+		
+我们随机选择了plate 1250, 1251, 1256, 1257, 2542, 2812, 2843, 3005和3128的9条光谱（如图\ref{fig:f136}所示）。
+我们发现通过星等得到的物理流量和光谱流量差别比较大，因此我们推测连续谱异常可能是因为流量定标差造成的。
+	\begin{figure}
+	\centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/f136.eps}
+		\caption{\label{fig:f136}plate 1250, 1251, 1256, 1257, 2542, 2812, 2843, 3005 和 3128随机筛选的9条光谱。
+        黑色实线为光谱曲线，红色填充圆是从SDSS $ugriz$得到的物理流量。
+		}
+		
+		\end{figure}
+	
+
+		\subsubsection{碳星、L及T型恒星}
+碳星是一种晚型恒星，和红巨星或红矮星非常类似，但其大气中碳元素含量要高于氧元素。
+如图\ref{fig:f112}所示，该类型恒星光谱由CH，CN，C$_2$等分子导致的分子带占主导地位。
+SDSS分类程序将一些光谱分类为 Carbon Star，Carbon WD 或 Carbon\_lines三类。
+如表\ref{t31}所示，这些光谱中$75.38\%$被筛选出来作为离群数据。
+如果将离群因子筛选标准放松到0.7,这个比例将会变为$98.37\%$。
+和白矮主序双星类似，碳星在聚类之后由于其高度相似聚集到几个分组中。
+其中，有8个分组中包含了60条以上的碳星光谱。
+各分组平均光谱（如图\ref{fig:f137}所示）表现出明显的CN和C分子带特征。
+	\begin{figure}
+	\centering
+		\includegraphics[width=0.8\textwidth]{figures/f112.eps}
+		\caption{\label{fig:f112}七条被本文工作筛选出来为离群数据的碳星光谱。}
+		
+		\end{figure}
+
+	\begin{figure}
+	\centering
+		\includegraphics[width=0.8\textwidth]{figures/f137.eps}
+		\caption{\label{fig:f137}分组476, 463, 415, 48, 45, 521, 177, 572, 314 和 136的平均光谱。
+        在计算平均光谱时，每条光谱均被归一化到$[0,1]$ 区间内。}
+		
+		\end{figure}
+	
+    L和T型恒星定义为广度和有效温度均低于M9.5类型的恒星。
+    SDSS分类程序将一些恒星分类为L1，L2，L3，L4，L5，L5.5，L9和T2几种类型，
+    我们发现这些光谱中有超过$92.3\%$的光谱信噪比都比较低。
+    在信噪比大于3的光谱中约有$58.5\%$的光谱筛选出来为离群数据。
+    如果将离群因子筛选标准放松到0.7,这个比例将会变为$92.1\%$。
+    在对这些光谱进行人眼检查之后，我们发现这些光谱中大部分被误分为L或T类型，而真正的L或T类型恒星信噪比均比较低。
+		
+	\subsubsection{白矮星}
+白矮星，又称塌缩矮星，是主要包含电子塌缩物质的恒星遗迹。
+其光谱被非常的氢元素巴尔默线和氦元素主宰。
+如表\ref{t31}所示，SDSS分类程序将14609条光谱分类为白矮星。
+白矮星一般被认为是非常稀少的目标，但是在SDSS DR8中由于选择效应的影响其中白矮星的数量并不少。
+但其中只有3226 ($\sim$$22.5\%$)被筛选出来作为白矮星。
+在和通过光谱确认的SDSS DR4中10,555条白矮星\cite{eisenstein2006catalog}交叉之后，星表中信噪比大于3的8758条光谱中只有2209条（$\sim$$25.2\%$）被筛选为离群数据。
+尽管如此，但一些特殊类型的白矮星筛选出来的比例却非常高。
+下面我们会讨论三种特殊类型的白矮星（DZ，DC和DQ）。
+
+	
+	%A special type of DZ white dwarf stars   are selected as outliers, which are not classified as White Dwarf by pipeline.	
+	\emph{I: DZ型白矮星}. 在文献\cite{eisenstein2006catalog}给出的分类标准中，包含除碳以外的金属元素冷白矮星命名为DZ类型白矮星。
+其光谱中不包括氢元素和氦元素的吸收线。
+文献\cite{Eisenstein06}的星表中包含了25条DZ白矮星，其中21条在本文工作中被筛选为离群数据。
+Koester等\cite{koester2011cool}也在SDSS数据中发现了26条DZ型白矮星光谱，其中有六条在DR8星表中被分类为恒星。
+这六条光谱（如图\ref{fig:f114}所示）全部被筛选为离群，其中5条光谱的离群因子大于0.92。
+	 \begin{figure}
+	\centering		
+		\includegraphics[width=0.8\textwidth]{figures/f114.eps}
+		\caption{\label{fig:f114}六条出现在文献\cite{koester2011cool}而且被本文工作筛选出来为离群数据的DZ型白矮星。}
+		
+		\end{figure}
+	
+	
+	\emph{II: DC型白矮星}.
+DC型白矮星是另外一种类型的冷白矮星。
+其光谱如图\ref{fig:f131}所示，光谱中只有连续谱成分，不存在深度超过$5\%$的谱线\cite{mccook1999catalog}。
+文献\cite{eisenstein2006catalog}中的白矮星星表中，共332条DC白矮星光谱，其中信噪比大于3且被分类star的共计121个。
+在这121个源中，共计91个源（$\sim$$75\%$）被筛选为离群数据。
+如果把筛选标准放松到离群因子大于0.75，数量将会变为114（$\sim$$94.2\%$）。
+剩余的7条未筛选的光谱如图\ref{fig:f132}所示，其中3条显然不是DC白矮星而剩余4条光谱质量太差没被本文方法筛选出来。
+
+	 	 \begin{figure}
+	\centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/f131.eps}
+		\caption{\label{fig:f131}一条DC型白矮星的光谱}
+		
+		\end{figure}
+	 \begin{figure}	
+\centering
+	
+		\includegraphics[width=0.8\textwidth]{figures/f132.eps}
+		\caption{\label{fig:f132}
+        文献\cite{eisenstein2006catalog}的六条为出现在本文筛选出离群数据中的DC型白矮星。}
+		
+		\end{figure}
+		
+	\emph{III: DQ型白矮星}.
+DQ白矮星是另外一种特殊类型白矮星，又称碳白矮星，其光谱有明显的碳原子和分子特征谱线。
+其大气中包含了氦元素和碳元素，碳元素是从深层的氦对流区域被拽只表面的\cite{koester2006new}。
+文献\cite{Eisenstein06}的星表中共有49条信噪比大于3的光谱被标记为DQ类型。
+其中44条光谱（$\sim$$89.7\%$）被本文方法筛选出作为离群数据。
+
+从上描述可推断，本文方法可以有效的筛选这三种和其它稀少类型的白矮星。
+	
+	\subsubsection{一些稀少有趣的目标\label{raretype}}
+在对所有离群光谱数据人眼检查之后，我们还发现了一些稀少而且有趣的光谱。
+我们下面将详细讨论几个典型的光谱，我们相信会有更多的异常、稀少甚至于未知光谱会在离群数据中筛选出来。
+		
+	 \emph{I: SDSS J100811.87+162450.4.}
+	 其光谱如图\ref{fig:f115}所示，光谱中包含了两个成分：一个白矮星一个M型恒星。
+    此外，光谱吸收核中还包含了不同视向速度的发射线。
+	\begin{figure}
+	\centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/f115.eps}
+		\caption{\label{fig:f115}上图为源SDSS J100811.87+162450.4的光谱。
+        下图为该光谱$H\beta$, $H\gamma$ 和$H\delta$三个区域的放大图。
+		}
+		
+		\end{figure}		
+		
+		 \emph{II: SDSS J190436.74+401022.8.}
+光谱如图\ref{fig:f116}所示，光谱特征非常奇怪在ADS中未发现关于该目标的研究文献。
+	
+	\begin{figure}
+	\centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/f116.eps}
+		\caption{\label{fig:f116}源SDSS J190436.74+401022.8的光谱。}
+		
+		\end{figure}	
+		
+		 \emph{III: SDSS J120403.01+201443.7.}
+我们还在其中发现了一个有趣的源：SDSS J120403.01+201443.7（其光谱如图\ref{fig:f117}所示）。
+在对其光谱扣除一个M2型的模板之后，剩余成分有一个超新星成分（z=0.02445）。
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/f117.eps}
+		\caption{\label{fig:f117}源J120403.01+201443.7的光谱。
+        蓝线为该源的观测光谱，绿线为一条M2类型恒星的模板光谱，红线为从观测光谱中扣除M2类型恒星的模板光谱之后的剩余光谱。}
+		\end{figure}
+SDSS图像（如图\ref{fig:f118}左所示）拍摄于爆炸之前，非常接近于离它最近的一颗M2型恒星（ra=181.0125594$^\circ$, dec=20.24547228$^\circ$）。
+光谱的超新星成分位于ra=181.01262$^\circ$ dec=20.24545$^\circ$是一种典型的Ia型超新星（SN 2008bf）。
+HST图像（如图\ref{fig:f118}右所示）拍摄于爆炸之后。
+图像中心明显比爆炸前亮度大了很多。
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/f118.eps}
+		\caption{\label{fig:f118}源SDSS J120403.01+201443.7的成像图。
+        左图为在爆炸之前拍摄的的SDSS多色成像图，右图为在爆炸之后拍摄的HST成像图。}
+		\end{figure}
+		
+	\emph{IV. SDSS J093100.51+485935.7.}
+        该目标的光谱如图\ref{fig:f119}所示。
+        在扣除一个M2型的模板之后，剩余成分为一个红移为0.02的星暴星系。
+        从其SDSS图像（如图\ref{fig:f120}所示）可以看出在恒星成分背后有一个明显的星系。
+        我们还发现了两个类似的目标：SDSS J132151.51+420014.1及SDSS J085125.64+024958.9。
+	  \begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/f119.eps}
+		\caption{\label{fig:f119}源SDSS J093100.51+485935.7的光谱。
+        子图a中，蓝线为该源的光谱，红线为M2型恒星的模板光谱。
+        子图b中，蓝线为M2型恒星的模板光谱。
+        子图c为在原始光谱中减掉M2型恒星模板光谱之后剩余的残谱。
+		}
+		\end{figure}
+
+
+	  \begin{figure}
+	  \centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/f120.eps}
+		\caption{\label{fig:f120}源SDSS J093100.51+485935.7的SDSS多色成像图。
+图中心为ra=142.752$^{\circ}$, dec=48.993$^{\circ}$。
+		%Each pixel is 0.1991 arcsec.
+		}
+		
+		\end{figure}
+		
+	%\emph{SDSS J093402.00+551428.1}****galaxy
+% 	%52266	555	558 	Pne? 780km/s
+	%Fig.\ref{fig:f414}
+	%\begin{figure}
+	%\begin{center}
+		%\label{fig:f414}
+		%\includegraphics[width=0.8\textwidth]{figures/f414.eps}
+		%\caption{*}
+		%\end{center}
+		%\end{figure}
+			
+		\subsubsection{Other Objects}
+在本文筛选的离群数据还存在着一些其它类型的光谱。
+由于选择效应的影响，F、G、K和M类型恒星光谱的数量要选选大于其它类型光谱。
+因此，这几个类型光谱占据了离群数据的绝大数。
+
+此外，我们还发现两个plate:0324、2070中包含了大量的离群数据。
+图\ref{fig:f134}中展示了从这两个天区中筛选出来的光谱。
+可以看出，每条光谱中都有一条非常强的发射线。
+发射线可能是因为比较差的观测条件或者数据处理错误造成的。
+		
+		\begin{figure}
+			\centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/f134.eps}
+		\caption{\label{fig:f134}六条从plates: 324 (MJD: 51616), 2070 (MJD: 53405)筛选出的光谱。
+        黑色实线为光谱曲线，红色填充圆是从SDSS $ugriz$得到的物理流量。
+		}
+		
+		\end{figure}
+	
+考虑到有些星系或类星体的光谱会被误分为恒星，因此在离群数据中也有星系和类星体的光谱。
+我们发现这些光谱被误分的主要原因是光谱质量较差。
+	
+	
+	\subsection{基于web的星表}
+为更为方便的发布和查看本文的结果，我们将所有的结果存放在数据库中。
+在此基础上，我们建立了一个网站（http://sciwiki.lamost.org/Miningdr8/）来方便访问这些离群数据。
+网站提供了三种方式来访问这些结果。
+所有用户均可以通过按组、按天区、按子型来访问这些结果。
+这三种方式非常类似，我们以第一种为例。
+按组查看页面（如图\ref{fig:fw1}所示）给出了所有的分组的列表和每个分组的平均光谱。
+点击链接之后即进入分组详细信息页面（如图\ref{fig:fw4}所示）。
+在此页面中，按照离群因子从大到校的顺序给出了所有的离群光谱的列表。
+同时还给出了该分组的平均光谱以及所有目标的空间分布等信息。
+当鼠标移向光谱图像时，会显示该光谱的一些基本信息。
+点击链接之后即可进入光谱的详细信息页面。
+该页面中给出了对应目标的光谱图及SDSS多彩成像图。
+访客可以在此页面查看和增加对该目标的备注信息。
+同时还在该页面中嵌入了SDSS CAS中的对应页面。
+	 %The search page provides a interface to search the results using SQL statements.
+		  \begin{figure}
+	  \centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/w1.eps}
+		\caption{\label{fig:fw1}按组查看页面}
+		
+		\end{figure}
+		
+				
+		
+% 					  \begin{figure}
+% 	  \begin{center}
+% 		
+% 		\includegraphics[clip=true, width=200pt]{figures/w4.eps}
+% 		\caption{\label{fig:fw2}The home page}
+% 		\end{center}
+% 		\end{figure}
+% 		
+% 					  \begin{figure}
+% 	  \begin{center}
+% 		
+% 		\includegraphics[clip=true, width=200pt]{figures/w5.eps}
+% 		\caption{\label{fig:fw3}The home page}
+% 		\end{center}
+% 		\end{figure}
+		
+		  \begin{figure}
+	  \centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/w2.eps}
+		\caption{\label{fig:fw4}聚类分组详细信息页面}
+		
+		\end{figure}
+		
+				  \begin{figure}
+	 \centering
+		
+		\includegraphics[width=0.8\textwidth]{figures/w3.eps}
+		\caption{\label{fig:fw5}光谱详细页面}
+		
+		\end{figure}
+	
+\section{结论}
+\label{conclusions}
+本文提出了一种新的离群数据挖掘算法MCLOF，从海量光谱巡天数据中发现异常及稀少的光谱。
+将该算法应用SDSS DR8的所有恒星光谱，然后详细讨论了筛选出来的离群数据。
+结果表明本文提出的方法可以快速而且有效的筛选出发射线恒星、双星、碳星等其它类型的特殊恒星。
+相比其它通过简单的样本约减然后人眼检查的方法，
+本文提出的方法能自动的筛选出大于95\%的一些已知类型的特殊恒星光谱如激变变星和白矮主序双星等。
+一些被这些工作遗漏的光谱也被搜寻出来。
+此外，一些相对稀少也被筛选出来，这表明本文方法可以从海量巡天数据中搜寻到稀少甚至于未知类型的光谱。
+本文提出的方法不仅只适用于光谱巡天，同样适用于其它类型的巡天项目的数据中。
+我们在网页http://sciwiki.lamost.org/Miningdr8/中发布了本文搜寻到的特殊天体的星表。

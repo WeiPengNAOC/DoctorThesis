@@ -1,0 +1,576 @@
+\begin{thebibliography}{10}
+
+\bibitem{koester2011cool}
+Detlev Koester, Jonathan Girven, Boris~T G{\"a}nsicke, and P~Dufour.
+\newblock Cool dz white dwarfs in the sdss.
+\newblock {\em arXiv preprint arXiv:1105.0268}, 2011.
+
+\bibitem{eisenstein2006catalog}
+Daniel~J Eisenstein, James Liebert, Hugh~C Harris, SJ~Kleinman, Atsuko Nitta,
+  Nicole Silvestri, Scott~A Anderson, JC~Barentine, Howard~J Brewington,
+  J~Brinkmann, et~al.
+\newblock A catalog of spectroscopically confirmed white dwarfs from the sloan
+  digital sky survey data release 4.
+\newblock {\em ApJS}, 167(1):40, 2006.
+
+\bibitem{wu2011automatic}
+Yue Wu, A-Li Luo, Hai-Ning Li, Jian-Rong Shi, Philippe Prugniel, Yan-Chun
+  Liang, Yong-Heng Zhao, Jian-Nan Zhang, Zhong-Rui Bai, Peng Wei, et~al.
+\newblock {Automatic determination of stellar atmospheric parameters and
+  construction of stellar spectral templates of the Guoshoujing Telescope
+  (LAMOST)}.
+\newblock {\em RAA}, 11(8):924, 2011.
+
+\bibitem{bolton2012spectral}
+Adam~S Bolton, David~J Schlegel, {\'E}ric Aubourg, Stephen Bailey, Vaishali
+  Bhardwaj, Joel~R Brownstein, Scott Burles, Yan-Mei Chen, Kyle Dawson,
+  Daniel~J Eisenstein, et~al.
+\newblock {Spectral Classification and Redshift Measurement for the SDSS-III
+  Baryon Oscillation Spectroscopic Survey}.
+\newblock {\em AJ}, 144(5):144, 2012.
+
+\bibitem{bochanski2007low}
+John~J Bochanski, Andrew~A West, Suzanne~L Hawley, and Kevin~R Covey.
+\newblock {Low-mass dwarf template spectra from the Sloan digital sky survey}.
+\newblock {\em AJ}, 133(2):531, 2007.
+
+\bibitem{gyw2001rzl}
+顾炎武, 周苏平, and 陈国庆.
+\newblock {\em 日知录}.
+\newblock 北方妇女儿童出版社, 2001.
+
+\bibitem{qytianwen}
+屈原 and 陆元炽.
+\newblock {\em 天问}.
+\newblock 北京出版社, 1987.
+
+\bibitem{meusinger2012unusual}
+H~Meusinger, P~Schalldach, R-D Scholz, M~Newholm, A~de~Hoon, B~Kaminsky, et~al.
+\newblock Unusual quasars from the sloan digital sky survey selected by means
+  of kohonen self-organising maps.
+\newblock {\em A\&A}, 541:77, 2012.
+
+\bibitem{tu2010method}
+LiangPing Tu, ALi Luo, FuChao Wu, and YongHeng Zhao.
+\newblock {A method of searching for supernova candidates from massive galaxy
+  spectra}.
+\newblock {\em Science China Physics, Mechanics and Astronomy},
+  53(10):1928--1938, 2010.
+
+\bibitem{tlpgpx2009}
+屠良平, 罗阿理, 吴福朝, and 赵永恒.
+\newblock 海量星系光谱中的超新星候选范围自动约减.
+\newblock {\em 光谱学与光谱分析}, (12):3420--3423, 2009.
+
+\bibitem{wei2013mining}
+Peng Wei, Ali Luo, Yinbi Li, Jingchang Pan, Liangping Tu, Bin Jiang, Xiao Kong,
+  Zhixin Shi, Zhenping Yi, Fengfei Wang, et~al.
+\newblock {Mining unusual and rare stellar spectra from large spectroscopic
+  survey data sets using the outlier-detection method}.
+\newblock {\em MNRAS}, 431(2):1800--1811, 2013.
+
+\bibitem{jolliffe2002principal}
+Ian~T Jolliffe.
+\newblock {\em {Principal component analysis}}.
+\newblock Springer verlag, 2002.
+
+\bibitem{kruskal1964multidimensional}
+Joseph~B Kruskal.
+\newblock Multidimensional scaling by optimizing goodness of fit to a nonmetric
+  hypothesis.
+\newblock {\em Psychometrika}, 29(1):1--27, 1964.
+
+\bibitem{thurstone1947multiple}
+Louis~Leon Thurstone.
+\newblock Multiple factor analysis.
+\newblock 1947.
+
+\bibitem{huber1985projection}
+Peter~J Huber.
+\newblock Projection pursuit.
+\newblock {\em The annals of Statistics}, pages 435--475, 1985.
+
+\bibitem{izenman2008linear}
+Alan~Julian Izenman.
+\newblock {\em Linear Discriminant Analysis}.
+\newblock Springer, 2008.
+
+\bibitem{he2003locality}
+Xiaofei He and Partha Niyogi.
+\newblock Locality preserving projections.
+\newblock In {\em NIPS}, volume~16, pages 234--241, 2003.
+
+\bibitem{hyvarinen2004independent}
+Aapo Hyv{\"a}rinen, Juha Karhunen, and Erkki Oja.
+\newblock {\em Independent component analysis}, volume~46.
+\newblock John Wiley \& Sons, 2004.
+
+\bibitem{kohonen2001self}
+Teuvo Kohonen.
+\newblock {\em Self-organizing maps}, volume~30.
+\newblock Springer, 2001.
+
+\bibitem{scholkopf1999kernel}
+Bernhard Scholkopf, Alexander Smola, and Klaus-Robert M{\"u}ller.
+\newblock Kernel principal component analysis.
+\newblock In {\em Advances in kernel methods-support vector learning}.
+  Citeseer, 1999.
+
+\bibitem{tenenbaum2000global}
+Joshua~B Tenenbaum, Vin De~Silva, and John~C Langford.
+\newblock A global geometric framework for nonlinear dimensionality reduction.
+\newblock {\em Science}, 290(5500):2319--2323, 2000.
+
+\bibitem{roweis2000nonlinear}
+Sam~T Roweis and Lawrence~K Saul.
+\newblock Nonlinear dimensionality reduction by locally linear embedding.
+\newblock {\em Science}, 290(5500):2323--2326, 2000.
+
+\bibitem{jiangbin2012gpx}
+姜斌, 罗阿理, and 赵永恒.
+\newblock 基于随机森林的激变变星候选体的数据挖掘.
+\newblock {\em 光谱学与光谱分析}, 32(2):510, 2012.
+
+\bibitem{jiangbin2011gpxa}
+姜斌, 罗阿理, and 赵永恒.
+\newblock 海量光谱中激变变星候选体的数据挖掘.
+\newblock {\em 光谱学与光谱分析}, 31(8):2278--2282, 2011.
+
+\bibitem{jiang2013data}
+Bin Jiang, Ali Luo, Yongheng Zhao, and Peng Wei.
+\newblock {Data mining for cataclysmic variables in the Large Sky Area
+  Multi-Object Fibre Spectroscopic Telescope archive}.
+\newblock {\em MNRAS}, 430(2):986--995, 2013.
+
+\bibitem{mcgurk2010principal}
+Rosalie~C McGurk, Amy~E Kimball, and \v{Z}eljko Ivezi{\'c}.
+\newblock {Principal Component Analysis of Sloan Digital Sky Survey Stellar
+  Spectra}.
+\newblock {\em AJ}, 139(3):1261, 2010.
+
+\bibitem{fiorentin2007estimation}
+P~Re Fiorentin, CAL Bailer-Jones, YS~Lee, TC~Beers, T~Sivarani, R~Wilhelm,
+  C~Allende Prieto, and JE~Norris.
+\newblock Estimation of stellar atmospheric parameters from sdss/segue spectra.
+\newblock {\em arXiv preprint astro-ph/0703309}, 2007.
+
+\bibitem{kong2001principal}
+Xu~Kong and FZ~Cheng.
+\newblock Principal component analysis for spectral indices of stellar
+  populations.
+\newblock {\em Monthly Notices of the Royal Astronomical Society},
+  323(4):1035--1040, 2001.
+
+\bibitem{yude2013stellar}
+Bu~Yude, Pan Jingchang, Jiang Bin, and Wei Peng.
+\newblock Stellar spectral subclass classification based on locally linear
+  embedding.
+\newblock {\em Publications of the Astronomical Society of Japan}, 65:81, 2013.
+
+\bibitem{daniel2011classification}
+Scott~F Daniel, Andrew Connolly, Jeff Schneider, Jake Vanderplas, and Liang
+  Xiong.
+\newblock Classification of stellar spectra with local linear embedding.
+\newblock {\em The Astronomical Journal}, 142(6):203, 2011.
+
+\bibitem{buyd2014gpx}
+卜育德, 潘景昌, and 陈福强.
+\newblock 基于 isomap 算法的恒星光谱离群点挖掘.
+\newblock {\em 光谱学与光谱分析}, (1), 2014.
+
+\bibitem{hu2013high}
+Yong~De Hu, Jing~Chang Pan, and Xin Tan.
+\newblock High-dimensional data dimension reduction based on keca.
+\newblock {\em Applied Mechanics and Materials}, 303:1101--1104, 2013.
+
+\bibitem{york2000sloan}
+Donald~G York, J~Adelman, John~E {Anderson Jr}, Scott~F Anderson, James Annis,
+  Neta~A Bahcall, JA~Bakken, Robert Barkhouser, Steven Bastian, Eileen Berman,
+  et~al.
+\newblock {The sloan digital sky survey: Technical summary}.
+\newblock {\em AJ}, 120(3):1579, 2000.
+
+\bibitem{szkody2002cataclysmic}
+Paula Szkody, Scott~F Anderson, Marcel Ag{\"u}eros, Ricardo Covarrubias, Misty
+  Bentz, Suzanne Hawley, Bruce Margon, Wolfgang Voges, Arne Henden, Gillian~R
+  Knapp, et~al.
+\newblock Cataclysmic variables from the sloan digital sky survey. i. the first
+  results.
+\newblock {\em AJ}, 123(1):430, 2002.
+
+\bibitem{szkody2003cataclysmic}
+Paula Szkody, Oliver Fraser, Nicole Silvestri, Arne Henden, Scott~F Anderson,
+  James Frith, Brandon Lawton, Ethan Owens, Sean Raymond, Gary Schmidt, et~al.
+\newblock Cataclysmic variables from the sloan digital sky survey. ii. the
+  second year.
+\newblock {\em AJ}, 126(3):1499, 2003.
+
+\bibitem{szkody2004cataclysmic}
+Paula Szkody, Arne Henden, Oliver Fraser, Nicole Silvestri, John Bochanski,
+  Michael~A Wolfe, Marcel Ag{\"u}eros, Brian Warner, Patrick Woudt, Jonica
+  Tramposch, et~al.
+\newblock Cataclysmic variables from the sloan digital sky survey. iii. the
+  third year.
+\newblock {\em AJ}, 128(4):1882, 2004.
+
+\bibitem{szkody2005cataclysmic}
+Paula Szkody, Arne Henden, Oliver~J Fraser, Nicole~M Silvestri, Gary~D Schmidt,
+  John~J Bochanski, Michael~A Wolfe, Marcel Ag{\"u}eros, Scott~F Anderson, Lee
+  Mannikko, et~al.
+\newblock Cataclysmic variables from sloan digital sky survey. iv. the fourth
+  year (2003).
+\newblock {\em AJ}, 129(5):2386, 2005.
+
+\bibitem{szkody2006cataclysmic}
+Paula Szkody, Arne Henden, Marcel Ag{\"u}eros, Scott~F Anderson, John~J
+  Bochanski, Gillian~R Knapp, Lee Mannikko, Anjum Mukadam, Nicole~M Silvestri,
+  Gary~D Schmidt, et~al.
+\newblock Cataclysmic variables from sloan digital sky survey. v. the fifth
+  year (2004).
+\newblock {\em AJ}, 131(2):973, 2006.
+
+\bibitem{szkody2007cataclysmic}
+Paula Szkody, Arne Henden, Lee Mannikko, Anjum Mukadam, Gary~D Schmidt, John~J
+  Bochanski, Marcel Ag{\"u}eros, Scott~F Anderson, Nicole~M Silvestri,
+  William~E Dahab, et~al.
+\newblock Cataclysmic variables from sloan digital sky survey. vi. the sixth
+  year (2005).
+\newblock {\em AJ}, 134(1):185, 2007.
+
+\bibitem{szkody2011cataclysmic}
+Paula Szkody, Scott~F Anderson, Keira Brooks, Boris~T G{\"a}nsicke, Martin
+  Kronberg, Thomas Riecken, Nicholas~P Ross, Gary~D Schmidt, Donald~P
+  Schneider, Marcel~A Ag{\"u}eros, et~al.
+\newblock Cataclysmic variables from the sloan digital sky survey. viii. the
+  final year (2007--2008).
+\newblock {\em AJ}, 142(6):181, 2011.
+
+\bibitem{rebassa2012post}
+A~Rebassa-Mansergas, A~Nebot G{\'o}mez-Mor{\'a}n, Matthias~R Schreiber, Boris~T
+  G{\"a}nsicke, A~Schwope, J~Gallardo, and Detlev Koester.
+\newblock Post-common envelope binaries from sdss--xiv. the dr7 white
+  dwarf--main-sequence binary catalogue.
+\newblock {\em MNRAS}, 419(1):806--816, 2012.
+
+\bibitem{li2012metal}
+Yinbi Li, Ali Luo, Gang Zhao, Youjun Lu, Juanjuan Ren, and Fang Zuo.
+\newblock Metal-poor hypervelocity star candidates from the sloan digital sky
+  survey.
+\newblock {\em ApJL}, 744(2):L24, 2012.
+
+\bibitem{cui2012large}
+Xiang-Qun Cui, Yong-Heng Zhao, Yao-Quan Chu, Guo-Ping Li, Qi~Li, Li-Ping Zhang,
+  Hong-Jun Su, Zheng-Qiu Yao, Ya-Nan Wang, Xiao-Zheng Xing, et~al.
+\newblock {The Large Sky Area Multi-Object Fiber Spectroscopic Telescope
+  (LAMOST)}.
+\newblock {\em RAA}, 12(9):1197, 2012.
+
+\bibitem{zhao2012lamost}
+Gang Zhao, Yong-Heng Zhao, Yao-Quan Chu, Yi-Peng Jing, and Li-Cai Deng.
+\newblock {LAMOST spectral survey---An overview}.
+\newblock {\em RAA}, 12(7):723, 2012.
+
+\bibitem{luo2012data}
+A-Li Luo, Hao-Tong Zhang, Yong-Heng Zhao, Gang Zhao, Xiang-Qun Cui, Guo-Ping
+  Li, Yao-Quan Chu, Jian-Rong Shi, Gang Wang, Jian-Nan Zhang, et~al.
+\newblock {Data release of the LAMOST pilot survey}.
+\newblock {\em RAA}, 12(9):1243, 2012.
+
+\bibitem{deng2012lamost}
+Li-Cai Deng, Heidi~Jo Newberg, Chao Liu, Jeffrey~L Carlin, Timothy~C Beers,
+  Li~Chen, Yu-Qin Chen, Norbert Christlieb, Carl~J Grillmair, Puragra
+  Guhathakurta, et~al.
+\newblock {LAMOST Experiment for Galactic Understanding and Exploration
+  (LEGUE)---The survey's science plan}.
+\newblock {\em RAA}, 12(7):735, 2012.
+
+\bibitem{li2010test}
+Hai-Ning Li, Gang Zhao, Norbert Christlieb, A-Li Luo, Jing-Kun Zhao, Yong-Heng
+  Zhao, Jian-Jun Chen, and Zhong-Rui Bai.
+\newblock Test observations that search for metal-poor stars with the
+  guoshoujing telescope (lamost).
+\newblock {\em RAA}, 10(8):753, 2010.
+
+\bibitem{wu2010very}
+Xue-Bing Wu, Zhao-Yu Chen, Zhen-Dong Jia, Wen-Wen Zuo, Yong-Heng Zhao, A-Li
+  Luo, Zhong-Rui Bai, Jian-Jun Chen, Hao-Tong Zhang, Hong-Liang Yan, et~al.
+\newblock A very bright (i= 16.44) quasar in the'redshift desert'discovered by
+  the guoshoujing telescope (lamost).
+\newblock 10(8):737, 2010.
+
+\bibitem{ren2013white}
+Juanjuan Ren, Ali Luo, Yinbi Li, Peng Wei, Jingkun Zhao, Yongheng Zhao, Yihan
+  Song, and Gang Zhao.
+\newblock White-dwarf-main-sequence binaries identified from the lamost pilot
+  survey.
+\newblock {\em AJ}, 146(4):82, 2013.
+
+\bibitem{huang2014hst}
+Y~Huang, X-W Liu, H-B Yuan, M-S Xiang, Z-Y Huo, Y-H Hou, G~Jin, Y~Zhang, and
+  X-L Zhou.
+\newblock Hst and lamost discover a dual active galactic nucleus in j0038+
+  4128.
+\newblock {\em arXiv preprint arXiv:1402.2740}, 2014.
+
+\bibitem{tu2009new}
+Liang-Ping Tu, A-Li Luo, Fu-Chao Wu, Chao Wu, and Yong-Heng Zhao.
+\newblock {New supernova candidates from the SDSS-DR7 spectral survey}.
+\newblock {\em RAA}, 9(6):635, 2009.
+
+\bibitem{peng2012selecting}
+Nanbo Peng, Yanxia Zhang, Yongheng Zhao, and Xue-bing Wu.
+\newblock Selecting quasar candidates using a support vector machine
+  classification system.
+\newblock {\em MNRAS}, 425(4):2599--2609, 2012.
+
+\bibitem{breunig2000lof}
+Markus~M Breunig, Hans-Peter Kriegel, Raymond~T Ng, and J{\"o}rg Sander.
+\newblock Lof: identifying density-based local outliers.
+\newblock In {\em ACM Sigmod Record}, volume~29, pages 93--104. ACM, 2000.
+
+\bibitem{aihara2011eighth}
+Hiroaki Aihara, Carlos~Allende Prieto, Deokkeun An, Scott~F Anderson, {\'E}ric
+  Aubourg, Eduardo Balbinot, Timothy~C Beers, Andreas~A Berlind, Steven~J
+  Bickerton, Dmitry Bizyaev, et~al.
+\newblock {The eighth data release of the Sloan Digital Sky Survey: first data
+  from SDSS-III}.
+\newblock {\em ApJS}, 193(2):29, 2011.
+
+\bibitem{glazebrook1998automatic}
+Karl Glazebrook, Alison~R Offer, and Kathryn Deeley.
+\newblock {Automatic redshift determination by use of principal component
+  analysis. I. Fundamentals}.
+\newblock {\em ApJ}, 492(1):98, 1998.
+
+\bibitem{shimansky2011wd}
+VV~Shimansky, DN~Nurtdinova, NV~Borisov, and OI~Spiridonova.
+\newblock Is wd 1437-008 a cataclysmic variable?
+\newblock {\em Astrophysical Bulletin}, 66(4):442--448, 2011.
+
+\bibitem{batten1973binary}
+AH~Batten.
+\newblock Binary and multiple star systems, 1973.
+
+\bibitem{rebassa2013white}
+A~Rebassa-Mansergas, C~Agurto-Gangas, MR~Schreiber, BT~G{\"a}nsicke, and
+  D~Koester.
+\newblock White dwarf main-sequence binaries from sdss dr 8: unveiling the cool
+  white dwarf population.
+\newblock {\em MNRAS}, 433(4):3398--3410, 2013.
+
+\bibitem{mccook1999catalog}
+George~P McCook and Edward~M Sion.
+\newblock A catalog of spectroscopically identified white dwarfs.
+\newblock {\em ApJS}, 121(1):1, 1999.
+
+\bibitem{koester2006new}
+D~Koester and S~Knist.
+\newblock New dq white dwarfs in the sloan digital sky survey dr4: confirmation
+  of two sequences.
+\newblock {\em A\&A}, 454:951--956, 2006.
+
+\bibitem{luo2001steps}
+A-Li Luo and Yong-Heng Zhao.
+\newblock {Steps Towards a Fully Automated Classification and
+  Redshift-measurement Pipeline for LAMOST Spectra. I. Continuum level and
+  wavelength estimation for galaxies}.
+\newblock {\em Chinese Journal of Astronomy and Astrophysics}, 1(6):563, 2001.
+
+\bibitem{luo2004design}
+A-Li Luo, Yan-Xia Zhang, and Yong-Heng Zhao.
+\newblock {Design and implementation of the spectra reduction and analysis
+  software for LAMOST telescope}.
+\newblock In {\em {Astronomical Telescopes and Instrumentation}}, pages
+  756--764. International Society for Optics and Photonics, 2004.
+
+\bibitem{luo2008automated}
+A-Li Luo, Yue Wu, Jingkun Zhao, and Gang Zhao.
+\newblock {Automated stellar spectral analysis software for survey spectra}.
+\newblock In {\em {Proc. of SPIE Vol}}, volume 7019, pages 701935--1, 2008.
+
+\bibitem{wang2010calibration}
+FF~Wang, AL~Luo, and YH~Zhao.
+\newblock {Calibration of LAMOST spectral analysis}.
+\newblock In {\em {SPIE Astronomical Telescopes and Instrumentation:
+  Observational Frontiers of Astronomy for the New Decade}}, pages
+  774031--774031. International Society for Optics and Photonics, 2010.
+
+\bibitem{falcon2011updated}
+J~Falc{\'o}n-Barroso, P~S{\'a}nchez-Bl{\'a}zquez, A~Vazdekis, E~Ricciardelli,
+  N~Cardiel, AJ~Cenarro, J~Gorgas, and RF~Peletier.
+\newblock {An updated MILES stellar library and stellar population models}.
+\newblock {\em A\&A}, 532:A95, 2011.
+
+\bibitem{wang2013effects}
+F.~{Wang}, H.~{Zhang}, A.~{Luo}, Z.~{Bai}, B.~{Du}, and Y.~{Zhao}.
+\newblock {The effects of spectrograph slit modes on the accuracy of stellar
+  radial velocity measurement and atmospheric parameter estimation}.
+\newblock {\em Science in China G: Physics and Astronomy}, 56:1833--1839,
+  October 2013.
+
+\bibitem{liu2013lss}
+X-W Liu, H-B Yuan, Z-Y Huo, L-C Deng, J-L Hou, Y-H Zhao, G~Zhao, J-R Shi, A-L
+  Luo, M-S Xiang, et~al.
+\newblock {LSS-GAC-A LAMOST Spectroscopic Survey of the Galactic Anti-center}.
+\newblock {\em arXiv preprint arXiv:1306.5376}, 2013.
+
+\bibitem{bai2012lamost}
+Zhongrui Bai.
+\newblock {LAMOST 2D pipeline}.
+\newblock {\em Proceedings of the International Astronomical Union},
+  8(S295):189--190, 2012.
+
+\bibitem{lee2008segue}
+Young~Sun Lee, Timothy~C Beers, Thirupathi Sivarani, Carlos~Allende Prieto,
+  Lars Koesterke, Ronald Wilhelm, Paola~Re Fiorentin, Coryn~AL Bailer-Jones,
+  John~E Norris, Constance~M Rockosi, et~al.
+\newblock {The segue stellar parameter pipeline. i. description and comparison
+  of individual methods}.
+\newblock {\em AJ}, 136(5):2022, 2008.
+
+\bibitem{ivezic2008milky}
+\v{Z}eljko Ivezi{\'c}, Branimir Sesar, Mario Juri{\'c}, Nicholas Bond, Julianne
+  Dalcanton, Constance~M Rockosi, Brian Yanny, Heidi~J Newberg, Timothy~C
+  Beers, Carlos~Allende Prieto, et~al.
+\newblock {The Milky Way Tomography with SDSS. II. Stellar Metallicity}.
+\newblock {\em ApJ}, 684(1):287, 2008.
+
+\bibitem{yi2013m}
+Zhenping Yi, Ali Luo, Yihan Song, Jingkun Zhao, Zhixin Shi, Peng Wei, Juanjuan
+  Ren, Fengfei Wang, Xiao Kong, Yinbi Li, Peng Du, Wen Hou, Yanxin Guo, Shuo
+  Zhang, Yongheng Zhao, Shiwei Sun, Jingchang Pan, Liyun Zhang, Andrew~A. West,
+  and Haibo Yuan.
+\newblock {M Dwarf Catalog of the LAMOST Pilot Survey}.
+\newblock {\em AJ}, 147(2):33, 2014.
+
+\bibitem{zhao201370}
+JK~Zhao, AL~Luo, TD~Oswalt, and G~Zhao.
+\newblock {70 DA White Dwarfs Identified in LAMOST Pilot Survey}.
+\newblock {\em AJ}, 145(6):169, 2013.
+
+\bibitem{zhang2013white}
+Yue-Yang Zhang, Li-Cai Deng, Chao Liu, Sebastien L{\'e}pine, Heidi~Jo Newberg,
+  Jeffrey~L Carlin, Kenneth Carrell, Fan Yang, Shuang Gao, Yan Xu, et~al.
+\newblock {DA White Dwarfs Observed in the LAMOST Pilot Survey}.
+\newblock {\em AJ}, 146(2):34, 2013.
+
+\bibitem{kriegel2009loop}
+Hans-Peter Kriegel, Peer Kr{\"o}ger, Erich Schubert, and Arthur Zimek.
+\newblock {LoOP: local outlier probabilities}.
+\newblock In {\em {Proceedings of the 18th ACM conference on Information and
+  knowledge management}}, pages 1649--1652. ACM, 2009.
+
+\bibitem{whitney1983principal}
+CA~Whitney.
+\newblock {Principal components analysis of spectral data. I-Methodology for
+  spectral classification}.
+\newblock {\em Astronomy and Astrophysics Supplement Series}, 51:443--461,
+  1983.
+
+\bibitem{bailer1998automated}
+Coryn~AL Bailer-Jones, Mike Irwin, and Ted~Von Hippel.
+\newblock {Automated classification of stellar spectra---II. Two-dimensional
+  classification with neural networks and principal components analysis}.
+\newblock {\em MNRAS}, 298(2):361--377, 1998.
+
+\bibitem{yip2004spectral}
+CW~Yip, AJ~Connolly, DE~Vanden Berk, Z~Ma, JA~Frieman, M~SubbaRao, AS~Szalay,
+  GT~Richards, PB~Hall, DP~Schneider, et~al.
+\newblock {Spectral classification of quasars in the Sloan Digital Sky Survey:
+  Eigenspectra, redshift, and luminosity effects}.
+\newblock {\em AJ}, 128(6):2603, 2004.
+
+\bibitem{almeida2013automated}
+J~S{\'a}nchez Almeida and C~Allende Prieto.
+\newblock {Automated unsupervised classification of the Sloan Digital Sky
+  Survey stellar spectra using k-means clustering}.
+\newblock {\em ApJ}, 763(1):50, 2013.
+
+\bibitem{singh1998stellar}
+Harinder~P Singh, Ravi~K Gulati, and Ranjan Gupta.
+\newblock {Stellar spectral classification using principal component analysis
+  and artificial neural networks}.
+\newblock {\em MNRAS}, 295(2):312--318, 1998.
+
+\bibitem{danks1994atlas}
+Anthony~C Danks and Michel Dennefeld.
+\newblock {An Atlas of Southern MK Standards From 5800 to 10,200 {\AA}}.
+\newblock {\em PASP}, pages 382--396, 1994.
+
+\bibitem{luo2012dr1}
+A-Li Luo et~al.
+\newblock {Data release one of the LAMOST survey}.
+\newblock (9):in preparation, 2013.
+
+\bibitem{si2014search}
+JianMin Si, ALi Luo, YinBi Li, JianNan Zhang, Peng Wei, YiHong Wu, FuChao Wu,
+  and YongHeng Zhao.
+\newblock {Search for carbon stars and DZ white dwarfs in SDSS spectra survey
+  through machine learning}.
+\newblock {\em Science China Physics, Mechanics and Astronomy}, 57(1):176--186,
+  2014.
+
+\bibitem{ahn2012ninth}
+Christopher~P Ahn, Rachael Alexandroff, Carlos~Allende Prieto, Scott~F
+  Anderson, Timothy Anderton, Brett~H Andrews, {\'E}ric Aubourg, Stephen
+  Bailey, Eduardo Balbinot, Rory Barnes, et~al.
+\newblock {The Ninth Data Release of the Sloan Digital Sky Survey: First
+  Spectroscopic Data from the SDSS-III Baryon Oscillation Spectroscopic
+  Survey}.
+\newblock {\em ApJS}, 203(2):21, 2012.
+
+\bibitem{Breunig2000}
+Markus~M Breunig, Hans-Peter Kriegel, Raymond~T Ng, and J{\"o}rg Sander.
+\newblock {LOF: identifying density-based local outliers}.
+\newblock In {\em {ACM Sigmod Record}}, volume~29, pages 93--104. ACM, 2000.
+
+\bibitem{carlin2012algorithm}
+Jeffrey~L Carlin, S{\'e}bastien L{\'e}pine, Heidi~Jo Newberg, Li-Cai Deng,
+  Timothy~C Beers, Yu-Qin Chen, Norbert Christlieb, Xiao-Ting Fu, Shuang Gao,
+  Carl~J Grillmair, et~al.
+\newblock {An algorithm for preferential selection of spectroscopic targets in
+  LEGUE}.
+\newblock {\em RAA}, 12(7):755, 2012.
+
+\bibitem{carlin2011comparison}
+Jeffrey~L Carlin, HJ~Newberg, TC~Beers, YS~Lee, B~Yanny, L~Deng, H~Zhang,
+  G~Zhao, Y~Zhang, A~Luo, et~al.
+\newblock {Comparison of Derived Stellar Parameters for LAMOST and SEGUE
+  Spectra}.
+\newblock In {\em {Bulletin of the American Astronomical Society}}, volume~43,
+  page 33413, 2011.
+
+\bibitem{chen2012legue}
+Li~Chen, Jin-Liang Hou, Jin-Cheng Yu, Chao Liu, Li-Cai Deng, Heidi~Jo Newberg,
+  Jeffrey~L Carlin, Fan Yang, Yue-Yang Zhang, Shi-Yin Shen, et~al.
+\newblock {The LEGUE disk targets for LAMOST's pilot survey}.
+\newblock {\em RAA}, 12(7):805, 2012.
+
+\bibitem{eisenstein2011sdss}
+Daniel~J Eisenstein, David~H Weinberg, Eric Agol, Hiroaki Aihara,
+  Carlos~Allende Prieto, Scott~F Anderson, James~A Arns, {\'E}ric Aubourg,
+  Stephen Bailey, Eduardo Balbinot, et~al.
+\newblock {Sdss-iii: Massive spectroscopic surveys of the distant universe, the
+  milky way, and extra-solar planetary systems}.
+\newblock {\em AJ}, 142(3):72, 2011.
+
+\bibitem{yang2012legue}
+Fan Yang, Jeffrey~L Carlin, Chao Liu, Yue-Yang Zhang, Shuang Gao, Yan Xu,
+  Li-Cai Deng, Heidi~Jo Newberg, S{\'e}bastien L{\'e}pine, Jin-Liang Hou,
+  et~al.
+\newblock {The LEGUE input catalog for dark night observing in the LAMOST pilot
+  survey}.
+\newblock {\em RAA}, 12(7):781, 2012.
+
+\bibitem{zhang2012legue}
+Yue-Yang Zhang, Jeffrey~L Carlin, Fan Yang, Chao Liu, Li-Cai Deng, Heidi~Jo
+  Newberg, Hao-Tong Zhang, S{\'e}bastien L{\'e}pine, Yan Xu, Shuang Gao, et~al.
+\newblock {The LEGUE high latitude bright survey design for the LAMOST pilot
+  survey}.
+\newblock {\em RAA}, 12(7):792, 2012.
+
+\bibitem{fanyhoushanshu}
+范哗 et~al.
+\newblock 后汉书, 1965.
+
+\end{thebibliography}

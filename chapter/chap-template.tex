@@ -1,0 +1,792 @@
+\chapter{LAMOST光谱分析软件中恒星分类模板库的构建}
+\label{chap:template}
+LAMOST光谱分析软件（又称为1D Pipeline）的主要目的是对LAMOST巡天中观测到的光谱进行分类和测量。
+通过和模板光谱进行匹配，观测到的恒星光谱会被分成不同的亚类。
+因此，恒星分类的性能很大程度上依赖于模板光谱的质量。
+在本文的工作的中，一个新的LAMOST恒星分类模板库被构建出来，用以提高当前LAMOST恒星的分类精度与可靠性。
+约100万条恒星从LAMOST DR1数据筛选出来来构建新的恒星模板。
+这些光谱按照两个不同的判据分成了233个分组：
+1) 通过卷积LAMOST光谱和SDSS \emph{ugriz}滤光片响应曲线得到的伪g-r颜色；
+2）LAMOST星表给出的分类结果。
+每个分组按照以下三个步骤来构建模板：
+1)首先利用局部孤立性概率算法(LoOP)来去掉离群数据,然后对剩余所有光谱进行主成分分析(PCA).
+在这个步骤，大约去掉了百分之五的光谱；
+2)所有的观测光谱军利用前面得到的前几个主成分进行重构；
+3)每个分组中，剩余的所有光谱通过加权平均得到一条模板模板。
+按照这三个步骤，初步得到了216条恒星的模板光谱。
+通过人眼检查这些模板光谱，去掉了其中的29低质量光谱。
+然后，通过人眼检查和三个恒星模板库的匹配结果对剩余的187条模板光谱进行MK分类。
+同时在这个过程中，去掉了10条难以分类的模板光谱。
+最终，通过和现在模板库进行融合，得到了一个包含183条模板光（61个不同的MK分类）的恒星分类模板库。
+\section{引言}
+大天区面积多目标光纤光谱望远镜（LAMOST）是一台特殊的反射式施密特望远镜，其有效口径为3.6-4.9米，焦距为20米，视场为5度 \citep{cui2012large}。
+由于其独特的设计，LAMOST望远镜可以在一次曝光中同时观测到4000条光谱。
+因此，LAMOST望远镜有很大的潜力可以对恒星及星系进行非常有效的巡天\citep{zhao2012lamost}。
+%The LAMOST survey\citep{zhao2012lamost} contains two main parts: the LAMOST ExtraGAlactic Survey (LEGAS) and the LAMOST Experiment for Galactic Understanding and Exploration survey of Milky Way stellar structure(LEGUE, see \citet{deng2012lamost}).
+
+
+LAMOST光谱分析软件(也称之为 1D pipeline)是一个针对LAMOST光谱巡天的LAMOST数据处理软件\citep{luo2001steps,luo2004design,luo2008automated,wang2010calibration,luo2012data}。
+%The pipeline is based on the specBS pipeline\citep{aihara2011eighth} for the analysis of SDSS spectra.
+该软件在波长空间内，通过$\chi^2$拟合观测光谱和由特征光谱的线性组合及低阶多项式构成的模板光谱。
+通过该软件，观测到的恒星光谱会被分成不同的恒星亚类。
+因此，恒星的性能很大程度依赖于模板的质量。
+
+考虑到LAMOST恒星光谱和其他巡天的光谱具有很大的相似度,
+在过去的LAMOST光谱分析软件模板库采用的恒星模板来自于SDSS和MILES \citep{falcon2011updated}。
+模板库中包含了56条模板，其中35条来自SDSS \citep{wang2010calibration}，剩余21是从MILES中挑选出来的A型星模板\citep{falcon2011updated}。
+这些模板涵盖了几乎所有常见的恒星光谱的类型。
+通过和这些模板进行匹配，LAMOST恒星光谱会被分成若干不同的亚类。
+尽管利用这个模板库得到的大部分恒星光谱分类都比较准确，
+但是LAMOST光谱和这些模板光谱之间的差异是不可好忽略的。
+首先，LAMOST和SDSS及MILES光谱的分辨率是不一样的。前者现在使用的R=1800，后面两者的分辨率是R=2000.
+不同分辨率的差异对光谱的影响是不可以忽略的，虽然比较小。
+其次，不同的仪器对最终光谱也不是完全一致的。
+最后，光谱的处理过程如抽谱、流量定标及波长定标等也是不一样的。
+同时，这些模板给出的得到的分类结果并不是很精细。
+因此，考虑到这些情况，非常有必要基于LAMOST实测光谱来构建一个恒星分类模板库。
+\section{恒星分类模板的构建}
+\subsection{LAMOST DR1光谱}
+LAMOST DR1的数据中包含了先导巡天以及第一年正式巡天的观测光谱。
+先导巡天开始与2011年10月结束于2012年6月，随后进行了第一年的正式巡天，其时间是从2012年9月至次年的6月份。
+DR1共释放了2,204,860条光谱,其中包括了先导巡天的717,660条光谱以及第一年正式巡天的1,487,200条光谱.
+图 \ref{Fig_all}给出了LAMOST DR1的天区覆盖图.
+
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.7\textwidth]{figures/dr1-full.eps}
+ \caption{LAMOST DR1天区覆盖图}
+ \label{Fig_all}
+\end{figure}
+
+LAMOST DR1中共包含了1,946,429条恒星光谱（其中1,173,928 条 SNR$>$10）。
+光谱在g波段的分辨率约为1800,观测时采用了2/3狭缝\citep{wang2013effects}。
+波长覆盖范围从3700 \AA\ 到 9100 \AA。
+%To extract spectra from raw observation data, the raw data have been reduced with LAMOST 2D pipeline \citep{bai2012lamost} including bias subtraction, cosmic-ray removal, spectral trace and extraction, flat-fielding, wavelength calibration sky subtraction, and combination.
+%%For the spectra with SNR$>$5
+%Then the 1D pipeline \citep{wang2010calibration,luo2012data} gives spectral type and redshift (radial velocity
+% for stellar spectra).
+考虑星际尘埃消光以及恒星密度过大对光纤光谱的影响，
+我们忽略掉总计约855,583条反银心及M31\citep{liu2013lss}附件区域的光谱。
+最终用来构建构建模板的恒星模板的光谱共计1,090,846条。
+\subsection{光谱分组}
+我们将剩余的1,090,846分成了233个不同的组，分组依据分别是伪颜色以及DR1星表给出的分类结果。
+\subsubsection{伪g-r颜色}
+%  \cite{mcgurk2010principal} divided all selected SDSS stellar spectra into different bins by the color g-r.
+LAMOST是一个只针对光谱巡天的光谱，其测光数据来源自其它巡天项目的星表。
+此外，LAMOST光谱只进行了相对流量定标改正了光谱的形状，并未进行绝对流量定标\citep{bai2012lamost}。
+因此，无法得到精确而且统一的LAMOST观测目标的颜色。
+为了解决这个问题，我们提出了一种伪g-r颜色（以下表示为$g^*$-$r^*$）.
+该颜色通过卷积观测光谱与SDSS $ugriz$滤光片响应曲线获得。
+其具体计算过程如下：
+\begin{enumerate}
+ \item 假设$g$和$r$滤光片的响应曲线采样波长点分别为 $P_g$, $P_r$，对应的响应曲线数值分别为$C_g$, $C_r$;
+ \item 将观测的流量分别插值到$P_g$ 和$P_r$波长采样点，得到对应的流量$F_g$和 $F_r$.
+ \item 通过如下公式计算$g^*$-$r^*$:
+ \begin{equation}
+        g^*-r^*=-2.5*log\frac{F_g\bigotimes C_g}{\sum C_g} +2.5*log\frac{ F_r\bigotimes C_r}{\sum C_r}
+       \end{equation}
+\end{enumerate}
+
+g-r颜色是恒星表面有效温度（$T_{eff}$）一个很好的指示剂\citep{lee2008segue,ivezic2008milky}。
+图\ref{Fig1}给出了不同光谱型(O, B, A, F, G, K, M)的光谱得到$g^*$-$r^*$数值的均值与标准差，
+从图中可以看出$g^*$-$r^*$颜色随着光谱型差别比较明显。
+O型和B型由于给出分类结果大部分都是错误的，所以造成图中误差较大。
+同时，由于DR1中很多晚于F类型光谱被误分为F9，所以F类型的均值大于实际值。8
+\begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{figures/f5.eps}
+   \caption{不同光谱型$g^*$-$r^*$ 颜色的均值与标准差.
+   X轴是每个光谱型理论温度的中值。
+   Y轴图形的中心是$g^*$-$r^*$ 颜色的均值，半长是$g^*$-$r^*$ 颜色的标准差。
+   }
+   \label{Fig1}
+   \end{figure}
+
+
+
+
+我们选择了具有输入星表中有$ugriz$测光信息而且光谱信噪比大于20的光谱，
+来检验$g^*$-$r^*$颜色和$g$-$r$及$T_{eff}$之间的关系。
+如图\ref{Fig2}所示，这两个颜色之间有着非常明显的线性关系。
+   \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{figures/f1.eps}
+   \caption{g-r颜色与$g^*$-$r^*$颜色之间的关系。
+  上图:X轴是$g^*$-$r^*$颜色，Y轴是输入星表中的g-r颜色。
+   红线是拟合出来的两者之间的关系（公式\ref{grrel}）,
+   红色的点是拟合多项式时去掉的离群数据。
+   下图:g-r颜色和$g^*$-$r^*$颜色差异分布的直方图.
+   两条绿色是对应$3\sigma$的边界.
+   }
+   \label{Fig2}
+      \end{figure}
+两者之间拟合出来的关系式如公式\ref{eq2}所示:
+\begin{equation}
+ g-r=0.807* (g^*-r^*)+  0.655
+ \label{eq2}
+\end{equation}
+
+
+
+Ivezi{\'c} 等人\citep{ivezic2008milky} 从SDSS光谱推导出一个$T_{eff}$和g-r颜色之间的关系（$-0.3 < g-r < 1.3$）：
+\begin{equation}
+ Log_{10} (T_{eff}/K)=0.0283* (g-r)^3 + 0.0488* (g-r)^2 - 0.316* (g-r) +3.882
+ \label{grrel}
+\end{equation}
+
+因此，我们根据公式\ref{eq2}和和公式\ref{grrel}可以推倒出一个$T_{eff}$和$g^*$-$r^*$ 颜色之间关系：
+\begin{equation}
+ Log_{10} (T_{eff}/K)=0.0283* (g^*-r^*)^3 + 0.0318* (g^*-r^*)^2 - 0.203* (g^*-r^*) +3.696
+ \label{eq3}
+\end{equation}
+
+LAMOST恒星参数测量软件（LASP，更多细节请参考\citep{wu2011automatic}）对LAMOST DR1中的1,085,404条A,F, G 和K型恒星光谱分别给出参数，
+包括有效温度（$T_{eff}$）, 表面重力加速度（$log g$） 和金属丰度($[Fe/H]$)。
+这些条光谱的$g^*$-$r^*$ 颜色和$T_{eff}$ 之间的关系如图\ref{Fig3}所示，
+我们同样也拟合两者之间的关系表达式：
+\begin{equation}
+Log_{10} (T_{eff}/K)=0.0432* (g^*-r^*)^3 +0.0107* (g^*-r^*)^2 -0.165* (g^*-r^*) +3.746
+\label{eq4}
+\end{equation}
+
+  \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f3.eps}
+   \caption{$g^*$-$r^*$颜色与$T_{eff}$关系示意图.
+   其中，$T_{eff}$在LASP数值加一个223K来消除SSPP和LASP之间的一个系统差\citep{wu2011automatic}。
+    黄色的线为公式\ref{eq3}的曲线,
+     红色的线为拟合出来的关系式曲线公式\ref{eq4},
+     红色的点是在拟合关系式是去掉的离群数据。}
+   \label{Fig3}
+   \end{figure}
+
+如图.\ref{Fig3}所示, 关系式\ref{eq3} 和关系式 \ref{eq4}在$T_{eff}$ [5500K,7000K]范围内彼此吻合的非常好。
+因此，，可以说本文定义的$g^*$-$r^*$颜色也是$Teff$一个非常好的指示剂，可以用来进行光谱分组。
+
+\subsubsection{分组依据}
+本文将所有光谱分到233个不同的分组中来构建不同类型的模板光谱，分组的依据分别是上节中的$g^*$-$r^*$颜色和DR1星表给出的分类信息。
+
+如前节所述，本文提出的$g^*$-$r^*$颜色对$T_{eff}$非常敏感。
+因此，我们选择了$g^*$-$r^*$颜色在[-1.5,2.0]范围内的所有光谱，然后将所有光谱分成了175个分组颜色步长为0.02mag。
+这些光谱的星等分布如图\ref{Fig4}所示：
+    \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{figures/f2.eps}
+   \caption{不同$g^*$-$r^*$分组中的光谱数量分布.
+   绿线是所有光谱的分布，红线是信噪比大于10的光谱的数量分布。
+   }
+   \label{Fig4}
+   \end{figure}
+
+%\subsubsection{subclass dividing}
+此外，按照DR1星表中给出的亚类分类，我们还另外分配了58个分组。
+这些组的编号从176到233。
+衣振萍等\citep{yi2013m}给出了LAMOST先导巡天的M矮星的星表，
+我们把这些光谱分别分配到对应的分组（组编号从220至229）。
+赵景坤等\citep{zhao201370}及张悦旸等\citep{zhang2013white}分别独立从LAMOST巡天数据中搜寻了DA型白矮星。
+我们将这两个工作中的光谱全部合并到分组\#233中。
+姜斌等\citep{jiang2013data}从LAMOST测试巡天中搜寻到10条激变变星光谱，我们将这些光谱全部合并到分组\#204中。
+
+
+\subsection{模板光谱的构建}
+\subsubsection{去除离群数据}
+% \citet{kriegel2009loop} proposed a local outlier factor (LOF, see  \citet{breunig2000lof}) based outlier detection  method.
+通过前面的分组，所有的按照两个不同的分类判据分到233个不同的分组中。
+尽管每个分组中的光谱彼此都非常类似，但是每个分组中仍然存在一些离群数据。
+造成离群数据的原因包括：星际消光、噪声、一些异常光谱特征及其他等。
+很显然，需要去掉这些离群数据来构建一个更纯净的样本然后来生成一个模板光谱。
+
+我们的工作中使用了局部孤立性概率算法(LoOP, 详细信息可参考文献\cite{kriegel2009loop})来去掉这些离群数据。
+LoOP是一种基于局部密度的方法，它使用统计信息来给出一个最终的得分。
+这个得分表征了一个样本点是一个局部密度离群点的概率。
+本文工作中将离群数据定义为得分大于某个给定阈值的样本。
+在本文的构建模板光谱中，使用了两次LoOP算法，使用的阈值分别为0.4和0.2.
+
+\subsubsection{光谱重建}
+主成分分析（PCA，详细信息参见\cite{jolliffe2002principal}）是一种数学方法，采用正交变换将一组可能相关的变量转变为一组线性无关的变量（称之为主成分）。
+主成分的个数少于或者等于原始变量的个数。
+这种变换定义这样，因此前面的几个主成分有最大的方差，也就是说贡献尽可能多的数据的变化。
+
+作为一种非常实用的工具，PCA方法被大量应用在光谱的分类及离群数据检测中来将原始光谱降维到非常少的成分\citep{whitney1983principal,bailer1998automated,yip2004spectral,tu2009new,tu2010method,almeida2013automated,wei2013mining,jiang2013data} 。
+PCA还被用于利用前几个主成分来进行原始光谱的重构 \citep{singh1998stellar}。
+文献\cite{mcgurk2010principal}中应用该方法到约20万条SDSS中的恒星光谱，并讨论特征系数与SSPP\citep{lee2008segue}给出的重力加速度和金属丰度之间的关系。
+我们工作运用PCA来重构原始光谱使得同一组中的光谱更为相似。
+
+\subsubsection{模板光谱的构建}
+本文利用下面10个步骤来构建模板光谱库。
+其中，中括号内为每一步骤后剩余的光谱数量，最开始光谱的数量为1,090,846。
+\begin{enumerate}
+\item 对于光谱数大于5000个分组，只选取前5000个信噪比最大的光谱。[525,723]
+\item 去掉每条光谱的视向速度，然后波长统一到3800\AA-9000\AA 步长为1\AA\ (总的采样点数量N=5201)，得到差值后的流量$F$.
+  \item 去掉包含流量负值的光谱，然后按照下面的公式来归一化流量$F$[489,137]:
+       \begin{equation}
+        F_i=\frac{F_i}{\sqrt{\sum\limits_{j=1}^{N}F_i^2}}
+       \end{equation}
+ \item 计算每个分组的LoOP值.
+ \item 去掉$LoOP\ge0.4$的光谱。 [415,381]
+		
+
+      \item 应用PCA到每个分组的剩余光谱得到特征矩阵$T$和对应的特征值$\lambda$.
+      \item 选择前$k$个主成分其对应的方差贡献率$\mu$
+      \begin{equation}
+       \mu=\frac{\sum\limits_{i=1}^{k}\lambda_i}{\sum\limits_{i=1}^{N}\lambda_i}>\theta
+      \end{equation}
+      其中$\theta$是一个给定的阈值(本文工作使用0.99)。
+      当$k=1$时，$k$定义为2。
+
+     \item 利用前面得到的前$k$个主成分来重构剩余的每条光谱。
+     \item 再次计算每个分组中剩余光谱的LoOP值，然后去掉$LoOP\ge0.2$的光谱。 [367,248]
+
+      \item 将所有的剩余按照信噪比加权平均得到一条光谱作为该组的模板光谱。
+           \end{enumerate}
+
+\subsubsection{模板光谱的类型}
+按照上面的10个步骤，有216个分组（约92\%）的成功构建出模板光谱。
+其他17分组失败的主要原因是高质量光谱的数量不足。
+在和和这些模板光谱进行匹配之后，LAMOST观测到的光谱都会按照最匹配的光谱分类为某一个恒星的亚型。
+因此，对这些构建出来的模板光谱标记一个恒星亚类也是一个非常重要的步骤。
+我们按照下面两个步骤来给每一条模板光谱标记一个恒星亚类：
+\begin{enumerate}
+\item 首先每一条模板光谱都会和三个模板库进行匹配，然后从每个库中筛选4个最匹配的光谱。
+也就是说，每条光谱都会从三个模板库中筛选12条最最匹配的光谱。
+这三个模板库分别为：
+    \begin{itemize}
+         \item 文献\cite{danks1994atlas}给出了一个MK标准星的星表，其波长范围为5800\AA-10200\AA。
+         恒星的光谱从O型到M型，光度型包括I型，III型以及V型。
+         沿色散方向的投影狭缝大约为4\AA,分辨率R约为1200。
+        所有的构建出模板光谱和这些标准星光谱都插值到统一的波长范围[6100\AA,9000\AA]，步长为4\AA.
+        为去标准星光谱中残留的强水线， 我们屏蔽了光谱中 [7500\AA,7700\AA] 和 [6800\AA,7000\AA]两个波长范围的数据。
+
+         \item 文献\cite{bolton2012spectral}详细介绍了SDSS III使用的光谱分析程序，并发布其使用的模板数据。
+         他们从Indo-U.S.的库中筛选出123条光谱用于做恒星光谱分类，所有的模板光谱通过和POLLUX交叉标记了一个MK类型。
+         123条光谱的分辨率约为1200，波长覆盖范围为[3500\AA\,11200\AA]。
+         这些光谱全部插值到波长范围[3800\AA,9000\AA]，波长为1\AA。
+
+
+        \item 如前面所述，LAMOST旧版本的模板库中包含了63条光谱。
+        这些光谱的分辨率为约2000，波长覆盖范围为[3800\AA\,9200\AA]。
+        这些光谱全部插值到波长范围[3800\AA,9000\AA]，波长为1\AA。
+    \end{itemize}
+\item
+在和上述的三个模板库进行自动匹配之后，通过人眼检查了所有的模板光谱。
+所有的模板光谱通过人眼检查结合匹配的结果标价了一个MK类型
+同时去掉了存在坏数据或光谱质量较差的模板。
+为更好的完成该操作，我们开发一个Web程序来完成。
+如网页\footnote{\url{http://sciwiki.lamost.org/lamost_sctl/v1/tsl_groupdetail.php?id=59},59是对应分组的编号}所示，所有的12个匹配的模板都可以选择并和本文构建的模板光谱绘制在一起。同时可以通过放大等操作查看局部的匹配情况。
+通过比对细节，挑选出最匹配的光谱，然后赋予模板光谱一个同样的恒星光谱亚型。
+
+\end{enumerate}
+
+
+\section{LAMOST分类模板库}
+新的恒星模板库包括了新构建的模板和原库中的6条光谱，其中共183条模板光谱（61个不同的MK类型）。
+如表\ref{tab4}所示,
+新构建的模板替换了LAMOST 1D Pipeline(版本:2.6.4)中的大部分模板。
+
+下面，我们将详细描述这个模板库：
+
+\begin{itemize}
+\item \emph{O型和B型光谱}
+由于LAMOST DR1中高质量O型和B型恒星数量比较少，
+因此在所有分组中都没有成功构建出这两种类型的模板。
+所以在最终的模板库中保留了原模板库中的四条模板。
+
+\item \emph{A型光谱}
+在人眼检查比较光谱类型之后，模板库中总计有49条A型恒星模板（13个不同的MK类型）。
+其中包含两条A型的巨星。
+每一个亚型的矮星，包含的模板光谱条数都大于1条。
+
+\item \emph{F, G和 K型光谱}
+作为最为普遍的光谱类型，
+F, G和 K型占到了模板库中约88\%.
+旧模板苦衷的11条光谱全部被条换掉。
+新模板库中共包含了84条F, G和 K型光谱（光谱亚类共26个）。
+这些光谱覆盖几乎F, G和 K型中所有的光谱亚型。
+每一个亚型的矮星，包含的模板光谱条数都大于1条。
+
+\item \emph{M型光谱}
+新模板库中共包含了28条F, G和 K型光谱（光谱亚类共10个）。
+早型的矮星，包含的模板光谱条数都大于1条。
+
+
+\item \emph{其它类型光谱}
+在旧模板库中共有5中数量相对稀少的类型的光谱，其中三条光谱在本文工作中被重新构建。
+另外，本文工作中还重新构建了一条双星、一条激变变星的模板。
+新模板库中共包含了7条类型相对稀少的模板光谱（光谱亚类共10个）。
+同时我们还注意到：对于这些相对稀少类型的光谱，通过模板匹配并不能完成而且纯净得到这些光谱，通过Pipeline给出的结果不能作为搜寻这些光谱的唯一标准。
+\end{itemize}
+\begin{deluxetable}{cccccccc}
+\tablecolumns{8}
+\tabletypesize{\scriptsize}
+%\setlength{\tabcolsep}{0.05in}
+\tablewidth{0pt}
+\tablecaption{合并后的模板库的主要信息表\label{tab4}}
+\tablehead{
+\colhead{光谱型}&
+\colhead{亚类编号}&
+\colhead{亚类}&
+\colhead{C1}&
+\colhead{C2}&
+\colhead{模板编号}
+}
+\startdata
+O	&1	&O	&0	&1	&1\\
+	&2	&OB	&0	&1	&2\\
+B	&3	&B6	&0	&1	&3\\
+	&4	&B9	&0	&1	&4\\
+A	&5	&A0III	&1	&1	&5\\
+	&6	&A1IV	&1	&1	&6\\
+	&7	&A1V	&4	&4	&7-10\\
+	&8	&A2IV	&3	&3	&11-13\\
+	&9	&A2V	&18	&18	&14-31\\
+	&10	&A3IV	&6	&6	&32-37\\
+	&11	&A3V	&2	&2	&38-39\\
+	&12	&A5V	&3	&3	&40-42\\
+	&13	&A6IV	&2	&2	&43-44\\
+	&14	&A6V	&3	&3	&45-47\\
+	&15	&A7III	&1	&1	&48\\
+	&16	&A7IV	&2	&2	&49-50\\
+	&17	&A7V	&2	&2	&51-52\\
+	&18	&A9V	&1	&1	&53\\
+F	&19	&F0	&4	&4	&54-57\\
+	&20	&F2	&2	&2	&58-59\\
+	&21	&F3	&2	&2	&60-61\\
+	&22	&F4	&1	&1	&62\\
+	&23	&F5	&7	&7	&63-69\\
+	&24	&F6	&4	&4	&70-73\\
+	&25	&F7	&2	&2	&74-75\\
+	&26	&F8	&1	&1	&76\\
+	&27	&F9	&2	&2	&77-78\\
+G	&28	&G0	&2	&2	&79-80\\
+	&29	&G1	&1	&1	&81\\
+	&30	&G2	&3	&3	&82-4\\
+	&31	&G3	&3	&3	&85-87\\
+	&32	&G4	&2	&2	&88-89\\
+	&33	&G5	&2	&2	&90-91\\
+	&34	&G6	&1	&1	&92\\
+	&35	&G7	&3	&3	&93-95\\
+	&36	&G8	&4	&4	&96-99\\
+	&37	&G9	&3	&3	&100-102\\
+K	&38	&K0	&3	&3	&103-105\\
+	&39	&K1	&4	&4	&106-109\\
+	&40	&K2	&2	&2	&110-111\\
+	&41	&K3	&4	&4	&112-115\\
+	&42	&K4	&4	&4	&116-119\\
+	&43	&K5	&8	&8	&120-127\\
+	&44	&K7	&11	&11	&128-138\\
+M	&45	&M0	&10	&10	&139-148\\
+	&46	&M1	&6	&6	&149-154\\
+	&47	&M2	&5	&5	&155-159\\
+	&48	&M3	&7	&7	&160-166\\
+	&49	&M4	&1	&1	&167\\
+	&50	&M5	&1	&1	&168\\
+	&51	&M6	&2	&2	&169\\
+	&52	&M7	&2	&2	&171-172\\
+	&53	&M8	&2	&2	&173-174\\
+	&54	&M9	&2	&2	&175-176\\
+Other	&55	&Carbon	&1	&1	&177\\
+	&56	&Carbon\_lines	&1	&1	&178\\
+	&57	&WD	&1	&1	&179\\tab4
+	&58	&CarbonWD	&0	&1	&180\\
+	&59	&WDmagnetic	&0	&1	&181\\
+	&60	&DoubleStar&1	&1	&182\\
+	&61	&CV	&1	&1	&183\\
+
+
+\enddata
+\tablecomments{
+C1是新构建出模板库中对应的光谱数量。
+C2是合并后模板库中对应的光谱数量。
+}
+\end{deluxetable}
+
+%\subsection{Examples}
+下面将选择四种典型类型（重建的模板光谱如图\ref{Fig6}所示）来详细描述重建模板的过程和重建的模板光谱。
+表\ref{tab2}给出这些模板的相关信息。
+他们对应的模板编号分别为69, 10, 183和 159,
+对应的分组分别为59, 179 ,204 和222。
+光谱类型分别为F5, A1IV, CV和 M2。
+ \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f6.eps}
+   \caption{模板光谱\#69, \#10, \#183 及 \#159。}
+   \label{Fig6}
+\end{figure}
+
+\begin{deluxetable}{cccccccc}
+\tablecolumns{8}
+\tabletypesize{\scriptsize}
+%\setlength{\tabcolsep}{0.05in}
+\tablewidth{0pt}
+\tablecaption{模板光谱\#69, \#10, \#183, \#159的基本信息\label{tab2}}
+\tablehead{
+\colhead{模板光谱编号}&
+\colhead{分组编号}&
+\colhead{分组内的光谱数}&
+\colhead{使用光谱数}&
+\colhead{类型1}&
+\colhead{类型2}&
+\colhead{类型3}&
+\colhead{类型4}
+}
+\startdata
+69  &59  &18534    &3048  &F5    &F3V/F5V  &F1V &F5   \\
+10  &179 &653    &381  &A1IV    &A4V/A1V  &A2V&A1V    \\
+183 &204 &27     &13  &CV    &-  &-&-    \\
+159 &222 &17231     &325  &M2    &M1/M0  &M1.5V/M3V&M2/M1    \\
+\enddata
+\tablecomments{类型1是最终标定的光谱类型。
+类型2是和文献\cite{danks1994atlas}匹配的最优光谱型。
+类型3是和文献\cite{bolton2012spectral}匹配的最优光谱型。
+类型4是和文献\cite{luo2012dr1}匹配的最优光谱型。}
+\end{deluxetable}
+\subsection{模板\#69 子类型:F5}
+69号模板构建于59号分组，分组中包含了$g^*$-$r^*$在[-0.34,-0.32]范围内的所有的光谱。
+该分组中共有18,534条光谱，在构建光谱是选择信噪比最大的5000条光谱。
+然后，4024条光谱用来进行主成分分析。
+如图\ref{Fig71}所示，由于该分组内光谱极其相似，第一个主成分的方差贡献率已经超过99\%。
+因此，利用前两个主成分重构的光谱和原始光谱极其类似(如图\ref{Fig81})。
+在去掉离群数据后，3048条光谱用来构建最终的模板光谱。
+光谱类型被标记为F5。
+如图\ref{Fig91}，该模板光谱和文献\cite{bolton2012spectral}给出的F3V/F5V类型的模板光谱非常类似。
+细节的放大也说明两者之间的一些诸如巴尔默线及Ca线强特征都非常一致。
+
+\begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f71.eps}
+   \caption{分组\#59中的前四个主成分.
+   }
+   \label{Fig71}
+\end{figure}
+
+ \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f81.eps}
+   \caption{分组\#59中光谱重构的事例。图中的黑线和红线分别是原始光谱和重构之后的光谱。
+   }
+   \label{Fig81}
+\end{figure}
+\begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f91.eps}
+   \caption{模板光谱\#69和文献\cite{bolton2012spectral}中的F3V/F5类型光谱的对比。
+   黑线是本文重构的光谱，红线是文献\cite{bolton2012spectral}中的F3V/F5类型光谱。
+   }
+   \label{Fig91}
+\end{figure}
+\subsection{模板\#10 子类型:A1IV}
+10号模板构建于179号分组，分组中包含了DR1星表搜有分类为A1IV的光谱。
+该分组中共有653条光谱，517条光谱用来进行主成分分析。
+如图\ref{Fig72}所示，和分组\#59类似，由于该分组内光谱极其相似，第一个主成分的方差贡献率已经超过99\%。
+但由于该分组光谱数量不足，一部分光谱的重构效果并不是很好（如图\ref{Fig82}）
+在去掉离群数据后，381条光谱用来构建最终的模板光谱。
+光谱类型被标记为A1IV。
+如图\ref{Fig92}，该模板光谱和旧模板库中来自MILES库的A1IV光谱非常类似，
+而且光谱质量略好于后者。
+
+\begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f72.eps}
+   \caption{分组\#179中的前四个主成分。
+   }
+   \label{Fig72}
+\end{figure}
+
+ \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f82.eps}
+   \caption{分组\#179中光谱重构的事例。图中的黑线和红线分别是原始光谱和重构之后的光谱。
+   }
+   \label{Fig82}
+\end{figure}
+\begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f92.eps}
+   \caption{模板光谱\#10和旧模板库中中的A1IV类型光谱的对比。
+   黑线是本文重构的光谱，红线是旧模板库中中的A1IV类型光谱。
+   }
+   \label{Fig92}
+\end{figure}
+\subsection{模板\#183 子类型:CV}
+183号模板构建于201号分组，分组中包含了DR1星表搜有分类为CV的光谱。
+该分组中共有27条光谱，23条光谱用来进行主成分分析。
+和正常相比，激变变星光谱有这非常明显的巴尔默及氦的发射线。
+如图\ref{Fig73}所示，前两个主成分中都表现出非常明显而且强的发射线，这两个主成分的方差贡献率已经超过99\%。
+和非激变变星相比，真正的激变变星的光谱被完美的重构出来（如图\ref{Fig83}）。
+在去掉离群数据后，17条光谱用来构建最终的模板光谱。
+这17条都是真正的激变变星光谱。
+最终构建出来的光谱非常明显的巴尔默及氦的发射线，这和激变变星光谱的特征完全吻合。
+
+
+
+\begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f73.eps}
+   \caption{分组\#201中的前四个主成分。
+   }
+   \label{Fig73}
+\end{figure}
+
+ \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f83.eps}
+   \caption{分组\#183中光谱重构的事例。图中的黑线和红线分别是原始光谱和重构之后的光谱。
+   }
+   \label{Fig83}
+\end{figure}
+\subsection{模板\#159 子类型:M2}
+159号模板构建于222号分组，分组中包含了DR1星表搜有分类为M2和文献\cite{yi2013m}分类为M2的所有光谱。
+该分组中共有17231条光谱，在构建光谱是选择信噪比最大的5000条光谱。
+由于M型恒星中蓝端特征比较弱，在如此多的光谱中，只有325来得到主成分。
+尽管如此，最终的模板光谱仍然被成功构建。
+如图\ref{Fig74}所示，前两个主成分的方差贡献率已经超过99\%。
+所有的筛选出来的光谱都被完美的重构光谱中蓝端的坏特征也被移除。
+
+图\ref{Fig94}给出了该模板和旧模板库中的M2类型模板以及文献\cite{bochanski2007low}给出的SDSS M2类型的平均谱。
+从图上来看出，本文重构的模板和这两条光谱类似甚至要好于这两条光谱。
+
+
+
+ \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f74.eps}
+   \caption{分组\#222中的前四个主成分。
+   }
+   \label{Fig74}
+\end{figure}
+
+ \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f84.eps}
+   \caption{分组\#222中光谱重构的事例。图中的黑线和红线分别是原始光谱和重构之后的光谱。
+   }
+   \label{Fig84}
+\end{figure}
+
+ \begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{f94.eps}
+   \caption{
+   模板光谱\#159和旧模板库中的M2类型模板以及文献\cite{bochanski2007low}给出的SDSS M2类型的平均谱的对比。
+   黑线是本文重构的光谱，红线分别是旧模板库中中的A1IV类型光谱和\cite{bochanski2007low}给出的SDSS M2类型的平均谱。
+   }
+   \label{Fig94}
+\end{figure}
+
+\section{讨论}
+\subsection{与LAMOST DR1模板库(v2.6.4)的比较}
+考虑到新模板库中的光谱构建自大量的来自LAMOST DR1的实测光谱，这些模板光谱和LAMOST巡天中的光谱是非常类似的。
+因此，新模板库预期能在提高恒星分类的精度及可靠性上能有所作为。
+
+
+我们选取了LAMOST巡天2013年下半年大约50万条恒星光谱来对新旧两个模板库进行比较。
+这些光谱采用两个不同版本的Pipeline进行处理，两个版本Pipeline之间的唯一区别是所使用的恒星分类模板库。
+V2.6.5 Pipeline采用了新模板库，而V2.6.4 Pipeline采用的是旧版本的模板库。
+下面的比较中用Pipeline的版本号来区分两个模板库。
+两个不同模板库给出的恒星亚类的分类结果之间的差异如图\ref{Fig10}所示。
+\begin{figure}
+   \centering
+   \includegraphics[width=0.8\textwidth]{cmp_subclass.eps}
+   \caption{两个模板库给出的恒星亚类分类结果之间的差异分布图。
+   }
+   \label{Fig10}
+   \end{figure}
+
+约86\%光谱两个分类结果之间的差别小于0.5个光谱型。
+V2.6.4两个次型之间的差别平均为0.5个光谱型，而V2.6.5相比V2.6.4给出更为精细的亚类划分。
+因此，我们可以说V2.6.5的结果和V2.6.4的结果是类似但是更为精确的。
+我们通过人眼查看剩余的光谱，发现约95\%的光谱v2.6.5给出更为准确的恒星分类。
+同时，我们发现V2.6.5还解决了V2.6.4恒星分类存在的两个问题：
+\begin{enumerate}
+ \item \emph{误分为F9类型问题 }
+
+我们以LAMOST J231848.57+142114.6为例。
+两个模板库匹配的结果如图\ref{Fig11}所示。
+   \begin{figure}
+\centering
+   \includegraphics[width=0.8\textwidth]{c1.eps}
+   \caption{LAMOST J231848.57+142114.6不同光谱库匹配结果的比较。
+   上图：黑线是观测光谱，红线和绿线分别是两个模板库中对应的最匹配模板。模板光谱分别缩小到90\%和80\%，防止和观测光谱重合。
+   中图：红线和绿线分别是观测减掉对应的模板光谱之后的残差百分比。
+   下图：红线和绿线分别是观测减掉对应的模板光谱之后的残差百分比分布。
+   }
+   \label{Fig11}
+   \end{figure}
+V2.6.5分类结果为G5，而V2.6.4分类结果为F9。
+从图\ref{Fig11}的中图可以看出，
+V2.6.5扣掉模板之后的残差要比V2.6.4的残差小的多。
+也就是说，
+V2.6.5最优匹配的模板要比V2.6.4模板更接近于实际光谱。
+从参数图可以看出，
+V2.6.4版本中的F9模板和G类型非常类似，比较大的区别是5176\AA 附近的Mg线。
+因此，在V2.6.4版本中很多G型光谱被误分为F9类型。
+这个问题在V2.6.5得到了解决。
+
+
+  \item \emph{M型恒星误分问题}
+
+  我们以LAMOST J195650.17+411651.4为例。
+两个模板库匹配的结果如图\ref{Fig12}所示。
+    \begin{figure}
+\centering
+   \includegraphics[width=0.8\textwidth]{c2.eps}
+   \caption{LAMOST J195650.17+411651.4不同光谱库匹配结果的比较。
+   上图：黑线是观测光谱，红线和绿线分别是两个模板库中对应的最匹配模板。模板光谱分别缩小到90\%和80\%，防止和观测光谱重合。
+   中图：红线和绿线分别是观测减掉对应的模板光谱之后的残差百分比。
+   下图：红线和绿线分别是观测减掉对应的模板光谱之后的残差百分比分布。
+   }
+   \label{Fig12}
+   \end{figure}
+V2.6.5分类结果为M5，而V2.6.4分类结果为G7。
+和前面的例子类似，
+V2.6.5最优匹配的模板要比V2.6.4模板更接近于实际光谱。
+    由于$\chi^2$模板匹配方法的局限性，
+  一些M类型的光谱在V2.6.4中被误分为其它类型。
+这个问题在V2.6.5得到了解决。
+由于V2.6.5版本的模板库中的M型光谱全部都构建自LAMOST实际观测的光谱，因此这些光谱相比V2.6.4模板库中的模板光谱更接近于LAMOST实际光谱。
+  \end{enumerate}
+
+  此外，通过在模板库中添加了两条碳型恒星的模板，
+  大约从50万条光谱中筛选出160碳星光谱。
+我们以LAMOST J200667.53+460647.2为例。
+两个模板库匹配的结果如图\ref{Fig13}所示。
+   V2.6.5分类结果为Carbon，而V2.6.4分类结果为G5。
+   和前面的例子类似，
+V2.6.5最优匹配的模板要比V2.6.4模板更接近于实际光谱。
+同样，新V2.6.5模板库在其它类型光谱上的性能要比V2.6.4模板库好的多，尤其是对于这些低信噪比光谱。
+
+
+    \begin{figure}
+\centering
+   \includegraphics[width=0.8\textwidth]{c6.eps}
+   \caption{LAMOST J20067.53+460847.2不同光谱库匹配结果的比较。
+   上图：黑线是观测光谱，红线和绿线分别是两个模板库中对应的最匹配模板。模板光谱分别缩小到90\%和80\%，防止和观测光谱重合。
+   中图：红线和绿线分别是观测减掉对应的模板光谱之后的残差百分比。
+   下图：红线和绿线分别是观测减掉对应的模板光谱之后的残差百分比分布。
+   }
+   \label{Fig13}
+   \end{figure}
+
+因此，我们得出结论新恒星分类模板库大大的改善了LAMOST 1D Pipeline的性能。
+
+\subsection{与SDSS DR9模板库的比较}
+SDSS DR9使用的恒星分类模板库包括了123条恒星亚类\cite{bolton2012spectral}。
+这些模板光谱都是筛选自 Indo-U.S.库中的光谱。
+从表\ref{tab3}可以看出,
+对于A, F, G, K 和 M型，
+本文构建的模板库在模板数量要多于DR9的模板数但类型略少。
+从SDSS casjobs，我们可以查询到DR9的123恒星模板中有80个模板匹配出来的光谱数量少于500条。
+这80条模板匹配出来的光谱总数为12897,仅占所有773,275条光谱总数的1.66\%。
+其中，在所有475,694条信噪比大于10的光谱中，80条模板只匹配出1062条，仅仅占到了总数的0.2\%。
+也就是其它的43条模板光谱匹配了SDSS DR9大量的光谱是尤其是高信噪比光谱。
+此外，如前面所述，LAMOST的光谱和SDSS的光谱在分辨率、仪器效率及处理过程等里面都有着很大的区别。
+因此，在我们的工作，并没有采用或添加SDSS的光谱或者模板到我们的库中。
+\begin{deluxetable}{cccc}
+\tablecolumns{8}
+\tabletypesize{\scriptsize}
+%\setlength{\tabcolsep}{0.05in}
+\tablewidth{0pt}
+\tablecaption{和SDSS DR9模板库的比较\label{tab3}}
+\tablehead{
+\colhead{光谱数}&
+\colhead{SDSS DR9 光谱数}&
+\colhead{本文模板库中子类型数}&
+\colhead{本文模板库中模板光谱数}
+}
+\startdata
+O	&3	&2	&2\\
+B	&30	&2	&2\\
+A	&19	&14	&49\\
+F	&19	&9	&25\\
+G	&15	&10	&23\\
+K	&19	&7	&36\\
+M	&12	&10	&28\\
+Others	&6	&7	&7\\
+\enddata
+
+\end{deluxetable}
+
+
+
+
+
+
+\subsection{系统偏差的去除}
+如前面所述，本文构建的模板光谱实际上是每个分组中大量光谱叠加出来的代表性的光谱。
+在光谱叠加的时候，不同源的空间位置、光纤位置以及光谱仪导致的系统偏差是不可避免的.
+怎么有效避免或者去掉系统偏差时在合并光谱是在光谱合并必须要考虑的一个关键问题。
+
+LAMOST望远镜的仪器包括16台光谱仪，每台光谱分别有红蓝两个CCD相机。
+这两台相机同时对250个光纤的红蓝两端同时成像。
+LAMOST 2D Pipeline在经过很多版本的改进之后\cite{bai2012lamost,luo2012dr1}，
+现在可以非常好的从原始CCD图像抽出光谱。
+下面，我们将详细描述这个过程并解释怎么去除系统偏差：
+\begin{enumerate}
+\item LAMOST每夜的观测中，都会拍摄晨昏蒙影，进而改正同一光谱仪不同光纤之间效率上的差异。
+这样的话，光纤位置的不同而导致的系统偏差引起光谱相对形状的不同就被改正。
+\item
+波长定标灯的光谱中的发射线用来做观测光谱的波长定标。
+此外还利用天光发射线来修正波长定标。
+\item
+每台光谱仪中都有超过20根以上的光纤用来该区域内的背景天光。
+这些光纤拍摄到的光谱结合起来构成一个超级天光光谱。
+超级天光光谱用来从观测光谱中扣除天光背景。
+在减天光以后，
+天光连续谱对光谱的影响被大大消弱，尤其是亮于背景天光的观测目标。
+同时，天光发射线也被很好的扣除。
+
+\item
+通过拍摄的5颗定标星的光谱以及理论光谱的形状得到一台光谱仪的光谱响应曲线，
+然后通过该曲线来进行相对流量定标。
+星际消光及地球大气消光对同一台光谱仪拍摄到的目标的区别很小，
+因此所有的光谱都被改正到了理论形状。
+为避免星际消光的巨大变化，
+本文工作中并没有选择反银心区域及M31星团内的观测目标。
+在来自不同区域及不同光谱仪拍摄到的观测光谱归一化同一个尺度之后，
+由于观测区域和光谱仪引起的系统偏差也被大大的削弱。
+\item
+最后，红蓝两端的光谱通过B样条函数拟合曲线拼接在一起组成一条完整的光谱。
+\end{enumerate}
+
+毫无疑问，在每个分组仍然会存在一些和大部分显著不同的光谱。
+本文工作两次运用LoOP来去掉这些离群光谱。
+最后我们将所有剩余的光谱进行叠加来提高模板光谱的信噪比，而不是直接选择信噪比最大的光谱。
+\subsection{存在的问题}
+如前面所述，我们构建出来的模板可以用于LAMOST巡天红的恒星光谱分类。
+但是同时，仍然存在一些问题需要解决：
+\begin{enumerate}
+\item
+尽管在大部分分组中，模板光谱都被很好的构架出来。
+而且LAMOST 1D Pipeline也得到了很大的提升。
+但是，如何更好的进行分组任然一个需要解决的问题。
+随着LAMOST巡天中观测源有更多更为精确而且统一颜色，
+利用第一种分组依据得到分组将更为可靠。
+事实上，最好的分组方法是通过人工挑选出一些更为纯净的样本来构建模板光谱。
+%\item
+%We notice that most of our template spectra are main sequence stars.
+此外，对于一些非常稀少的类型如K巨星、DC, DZ 和 DQ类型的白矮星\citep{si2014search}以及蓝水平分支星，
+需要人工或其他方法来挑选出一个样本数量足够而且纯净的样本来构建模板光谱。
+%In order to construct the template library which contains as many types of spectra as possible,
+%such as  K-type giants, DC and DZ white dwarfs \citep{si2014search},
+%we need to add these rare spectra into our template library.
+\item
+当前工作中，我们用了三个模板库来对模板光谱进行类型标记。
+但是，如何更好地结合人眼检查的结果对这些光谱进行标记仍然是一个问题。
+
+\item
+此外，在构建模板的过程中每个分组都去掉了一些离群数据。
+对这些离群数据的研究也是很有价值的，可以从中搜寻一些相对数量较少的甚至是未知类型的恒星。
+\end{enumerate}
+
+\section{总结}
+本文构建了一个新的LAMOST恒星光谱分类模板库来提高恒星分类的精度和可靠性。
+我们选取了约75万条LAMOST DR1中的恒星光谱，然后按照伪颜色和DR1星表给出的分类将这些光谱分成了233个组。
+通过本文提出的包括离群数据去除、光谱重构等在内的模板构建步骤，
+每个分组构建出一条加权平均的光谱作为模板光谱。
+此后，通过和模板库的比对以及人眼检查，每条模板光谱均被标记了一个恒星MK亚类。
+最终，通过和现在模板库进行融合，得到了一个包含183条模板光谱（61个不同的MK分类）的恒星分类模板库。
+新模板库已经被用于LAMOST光谱分析软件中。
+随着巡天的不断进行，LAMOST会观测到更多高质量的光谱。
+因此为基础构建一个完备的高质量分类模板库是我们的一个努力目标。
+

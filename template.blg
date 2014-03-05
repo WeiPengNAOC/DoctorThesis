@@ -1,0 +1,26 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: template.aux
+The style file: unsrt.bst
+Illegal, another \bibstyle command---line 18 of file template.aux
+ : \bibstyle
+ :          {unsrt}
+I'm skipping whatever remains of this command
+A level-1 auxiliary file: chapter/abstract.aux
+A level-1 auxiliary file: chapter/chap-intro.aux
+A level-1 auxiliary file: chapter/chap-outlier.aux
+A level-1 auxiliary file: chapter/chap-template.aux
+A level-1 auxiliary file: chapter/chap-faq.aux
+A level-1 auxiliary file: chapter/chap-sum.aux
+A level-1 auxiliary file: chapter/pub.aux
+A level-1 auxiliary file: chapter/resume.aux
+A level-1 auxiliary file: chapter/thanks.aux
+Database file #1: bib/tex.bib
+Warning--I didn't find a database entry for "Eisenstein06"
+Warning--there's a number but no volume in tlpgpx2009
+Warning--empty journal in thurstone1947multiple
+Warning--there's a number but no volume in buyd2014gpx
+Warning--empty journal in wu2010very
+Warning--can't use both volume and number fields in breunig2000lof
+Warning--empty journal in luo2012dr1
+Warning--there's a number but no volume in luo2012dr1
+Warning--can't use both volume and number fields in Breunig2000
+(There was 1 error message)

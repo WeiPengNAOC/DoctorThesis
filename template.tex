@@ -1,0 +1,127 @@
+%% Thesis Template of Chinese Academy of Sciences
+%%   for using CASthesis package with LaTeX2e
+%%
+%% Created by Ling-Yun Wu <aloft@ctex.org>
+%%
+%% $Id: template.tex,v 1.10 2007/01/09 05:10:46 aloft Exp $
+
+
+\documentclass[dvipdfm]{CASthesis}
+% 可选参数：
+% notypeinfo 取消扉页的LaTeX版本信息
+%
+% 下面三个选一个：
+% dvipdfm 使用 dvipdfm(x) 生成最终的 PDF 文档 (缺省设置）
+% dvips 使用 dvips 生成最终的 PS 文档
+% pdftex 使用 pdfLaTeX 生成最终的 PDF 文档
+
+
+% 设置图形文件的搜索路径
+\graphicspath{{chapter/}{figures/}}
+
+% 取消链接的颜色（黑白打印时）
+%\hypersetup{colorlinks=false}
+
+% 小节标题靠左对齐
+%\CTEXsetup[format+={\flushleft}]{section}
+
+\usepackage{deluxetable}
+\usepackage{multirow}
+
+\renewcommand{\tablename}{表}
+\begin{document}
+\bibliographystyle{unsrt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 封面部分
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % 中文封面内容
+  \classification{}
+  \confidential{}
+  \UDC{}
+  \serialnumber{}
+  \title{自动搜寻特殊及稀少天体光谱的相关问题研究}
+  \author{韦鹏}
+  \advisor{赵永恒~研究员~~~罗阿理~研究员}
+  \advisorinstitute{中国科学院国家天文台}
+  \degree{博士}
+  \major{天文技术与方法}
+  \submitdate{2014年5月}
+  \defenddate{2014年5月}
+  \institute{中国科学院国家天文台}
+  \school{中国科学院大学}
+  \chairman{}
+
+  % 英文封面内容
+  \englishtitle{Research on automatic search for special and rare Celestial Spectra}
+  \englishauthor{Peng Wei}
+  \englishadvisor{Prof. Yongheng Zhao~Prof.Ali Luo}
+  \englishinstitute{National Astronomical Observatories \\
+    Chinese Academy of Sciences}
+  \englishdegree{Ph.D.}
+  \englishmajor{Astronomical Technology and Method}
+
+
+  % 封面
+  \maketitle
+
+  % 英文封面
+  \makeenglishtitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 前言部分
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frontmatter
+
+  % 摘要
+  \include{chapter/abstract}
+
+  % 目录
+  \tableofcontents
+  % 表格目录
+  \listoftables
+  % 插图目录
+  \listoffigures
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 正文部分
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mainmatter
+
+  \include{chapter/chap-intro}
+ %\include{chapter/chap-outlier}
+% \include{chapter/chap-template}
+%  \include{chapter/chap-faq}
+%\include{chapter/chap-sum}
+  % 附录
+  %\appendix
+
+  %\include{chapter/chap-req}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 附件部分
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\backmatter
+
+  % 参考文献
+  % 使用 BibTeX
+  \bibliography{bib/tex}
+  \nocite{*}
+  % 不使用 BibTeX
+  % \include{chapter/bib}
+
+  % 发表文章目录
+  \include{chapter/pub}
+
+  % 个人简历
+  \include{chapter/resume}
+
+  % 致谢
+  \include{chapter/thanks}
+
+
+\end{document}
